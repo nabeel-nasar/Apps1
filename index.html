@@ -164,6 +164,7 @@
           </div>
           <ol class="list-decimal list-inside space-y-2.5 text-xs text-slate-700 leading-relaxed">
             <li>Connect your Arduino board to your computer using a USB data cable.</li>
+            <li>Locate the switch on the board (located to the right side of the LED light) and flip it to the <strong>UPLOAD</strong> position before uploading code.</li>
             <li>Launch the <strong>Arduino IDE</strong>.</li>
             <li>Navigate to <strong>Tools &gt; Board</strong> and select your board type (e.g., <code>Arduino Uno</code>).</li>
             <li>Navigate to <strong>Tools &gt; Port</strong> and choose the corresponding active COM port (e.g., <code>COM3</code>, <code>COM4</code>, or <code>/dev/ttyACM0</code>).</li>
@@ -548,6 +549,7 @@ void loop() {
           <div class="bg-white border border-slate-200 rounded-2xl p-4 max-w-[85%] text-slate-800 shadow-sm text-xs leading-relaxed">
             Hello! I am your Project Diagnostic Bot. Select a topic below or type your question:
             <ul class="list-disc list-inside mt-2 space-y-1 text-slate-600">
+              <li><strong>Upload / Programmer Error:</strong> Flip switch on board to UPLOAD position.</li>
               <li><strong>Power Issues:</strong> Robot won't turn on, battery voltage drops, board reset.</li>
               <li><strong>Motor Reversing:</strong> Software polarity fixes, motor driver overheating, PWM balancing.</li>
               <li><strong>Sensor Errors:</strong> MPU6050 missing chip, I2C scan failure, sonar timeouts.</li>
@@ -559,6 +561,9 @@ void loop() {
 
       <!-- Quick Option Chips -->
       <div class="px-4 py-2.5 bg-white border-t border-slate-200 flex gap-2 overflow-x-auto text-xs whitespace-nowrap">
+        <button onclick="askBotTab('not in sync resp=0x00 programmer is not responding error')" class="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 rounded-lg transition font-medium">
+          ⚠️ Upload / Programmer Error
+        </button>
         <button onclick="askBotTab('Robot does not turn on')" class="px-3 py-1.5 bg-slate-100 hover:bg-warmorange-100 text-slate-700 hover:text-warmorange-600 border border-slate-200 rounded-lg transition font-medium">
           🔴 Robot won't turn on
         </button>
@@ -614,7 +619,7 @@ void loop() {
       <!-- Messages Window -->
       <div id="widget-chat-messages" class="flex-grow p-3 overflow-y-auto space-y-3 bg-slate-50 text-xs">
         <div class="bg-white border border-slate-200 rounded-xl p-3 text-slate-700 shadow-sm">
-          Hi! Ask me anything about power issues, dead batteries, motor reversing, or sensor diagnostics!
+          Hi! Ask me anything about power issues, dead batteries, upload errors, motor reversing, or sensor diagnostics!
         </div>
       </div>
 
@@ -768,6 +773,21 @@ void loop() {
 
     // Comprehensive Local Hardware Diagnostic Knowledge Base
     const ISSUE_DATABASE = [
+      // 0. BOARD SWITCH / PROGRAMMER / UPLOAD ERRORS
+      {
+        id: "upload_not_in_sync_error",
+        tags: ["sync", "resp=0x00", "programmer is not responding", "unable to open port", "uploading error", "exit status 1", "not in sync", "0x00", "attempt"],
+        solution: `
+          <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 mb-2">
+            <strong class="text-amber-900 font-bold text-xs"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Upload Error Solution (not in sync / programmer not responding):</strong>
+          </div>
+          1. <strong>Board Mode Switch:</strong> Locate the switch on the board (located on the right side of the LED light) and flip it to the <strong>UPLOAD</strong> position.<br>
+          2. <strong>Retry Upload:</strong> Click the Upload button in the Arduino IDE again.<br>
+          3. <strong>Check COM Port:</strong> Ensure the correct COM port is selected under <i>Tools &gt; Port</i>.<br>
+          4. <strong>Data Cable:</strong> Verify your USB cable is plugged in firmly.
+        `
+      },
+
       // 1. POWER & BATTERY PROBLEMS
       {
         id: "power_no_turn_on",
@@ -807,10 +827,11 @@ void loop() {
         tags: ["upload", "com port", "port", "failed", "avrdude", "stk500", "not connecting", "cable", "ide", "board"],
         solution: `
           <strong>Arduino USB Upload Troubleshooting:</strong><br>
-          1. <strong>Data Cable Verification:</strong> Ensure your USB cable carries data lines (many thin USB cables are charging-only).<br>
-          2. <strong>Board & Port Settings:</strong> In Arduino IDE, navigate to <i>Tools &gt; Board</i> and choose <code>Arduino Uno</code>. Under <i>Tools &gt; Port</i>, pick the active COM port.<br>
-          3. <strong>Serial Drivers:</strong> If using clone boards, ensure the CH340 or CP2102 USB driver is installed on your OS.<br>
-          4. <strong>RX/TX Pin Conflict:</strong> Unplug any hardware connected to digital pins 0 (RX) and 1 (TX) during sketch uploading, as they share the main serial interface.
+          1. <strong>Board Mode Switch:</strong> Check the switch on the board (located to the right side of the LED light) and ensure it is flipped to <strong>UPLOAD</strong>.<br>
+          2. <strong>Data Cable Verification:</strong> Ensure your USB cable carries data lines (many thin USB cables are charging-only).<br>
+          3. <strong>Board & Port Settings:</strong> In Arduino IDE, navigate to <i>Tools &gt; Board</i> and choose <code>Arduino Uno</code>. Under <i>Tools &gt; Port</i>, pick the active COM port.<br>
+          4. <strong>Serial Drivers:</strong> If using clone boards, ensure the CH340 or CP2102 USB driver is installed on your OS.<br>
+          5. <strong>RX/TX Pin Conflict:</strong> Unplug any hardware connected to digital pins 0 (RX) and 1 (TX) during sketch uploading, as they share the main serial interface.
         `
       },
       {
@@ -903,10 +924,11 @@ void loop() {
         tags: ["start", "where do i start", "begin", "setup", "first steps", "guide", "instructions"],
         solution: `
           <strong>Project Setup Sequence:</strong><br>
-          1. <strong>USB Setup:</strong> Connect Arduino to PC via USB, open Arduino IDE, and set board/COM port.<br>
-          2. <strong>Basic Communication:</strong> Upload a basic test sketch printing to <i>Serial Monitor (9600 baud)</i>.<br>
-          3. <strong>Motor Diagnostic:</strong> Run motor tests to confirm drive directions and adjust polarity in code if needed.<br>
-          4. <strong>Sensor Diagnostics:</strong> Test IMU MPU6050 and ultrasonic sensors individually using provided code snippets before combining logic into line-following routines.
+          1. <strong>Board Switch:</strong> Flip the switch on the right side of the LED light to <strong>UPLOAD</strong>.<br>
+          2. <strong>USB Setup:</strong> Connect Arduino to PC via USB, open Arduino IDE, and set board/COM port.<br>
+          3. <strong>Basic Communication:</strong> Upload a basic test sketch printing to <i>Serial Monitor (9600 baud)</i>.<br>
+          4. <strong>Motor Diagnostic:</strong> Run motor tests to confirm drive directions and adjust polarity in code if needed.<br>
+          5. <strong>Sensor Diagnostics:</strong> Test IMU MPU6050 and ultrasonic sensors individually using provided code snippets before combining logic into line-following routines.
         `
       }
     ];
@@ -916,13 +938,34 @@ void loop() {
       const qClean = query.toLowerCase().replace(/[^\w\s]/gi, '').trim();
       const tokens = qClean.split(/\s+/);
 
+      // Specific Check for Upload / Programmer Error (matching screenshot text)
+      if (
+        qClean.includes("sync") || 
+        qClean.includes("programmer") || 
+        qClean.includes("0x00") || 
+        qClean.includes("com3") || 
+        qClean.includes("unable to open port") || 
+        qClean.includes("exit status 1") ||
+        qClean.includes("not responding")
+      ) {
+        return `
+          <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 mb-2">
+            <strong class="text-amber-900 font-bold text-xs"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Fix for Upload / Programmer Error:</strong>
+          </div>
+          1. <strong>Flip Board Switch:</strong> Locate the switch on the board (on the right side of the LED light) and set it to <strong>UPLOAD</strong>.<br>
+          2. <strong>Re-upload Sketch:</strong> Click the Upload button in Arduino IDE again.<br>
+          3. <strong>Verify COM Port:</strong> Ensure <i>Tools &gt; Port</i> is set to your connected COM port.
+        `;
+      }
+
       // Domain Keyword Filter: Ensure query relates to hardware, robotics, Arduino, code, or lab troubleshooting
       const domainKeywords = [
         "robot", "arduino", "code", "motor", "wheel", "battery", "power", "switch", 
         "sensor", "imu", "mpu6050", "ultrasonic", "sonar", "trig", "echo", "line", 
         "wire", "upload", "port", "com", "ide", "c++", "c", "voltage", "charge", 
         "turn on", "start", "steering", "pwm", "serial", "baud", "reset", "drift", 
-        "curve", "troubleshoot", "debug", "error", "failed", "setup", "help", "avoid"
+        "curve", "troubleshoot", "debug", "error", "failed", "setup", "help", "avoid",
+        "sync", "programmer", "resp"
       ];
 
       const isDomainRelated = tokens.some(token => 
@@ -936,7 +979,7 @@ void loop() {
             <p class="font-bold text-red-600 mb-1"><i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Out of Scope Question</p>
             <p class="mb-2">This diagnostic bot only assists with Arduino, power/battery issues, motor drives, IMU (MPU6050), and ultrasonic sensors for this project.</p>
             <p class="font-semibold text-navy-900 bg-amber-50 p-2.5 rounded-lg border border-amber-200">
-              For other questions, please <strong>contact instructor</strong>.
+              For administrative, grade, assignment scope, or course policy questions, please <strong>contact instructor</strong>.
             </p>
           </div>
         `;
@@ -971,6 +1014,7 @@ void loop() {
         <p class="mb-2"><strong>Unrecognized Issue:</strong> I couldn't find an exact match for your hardware query.</p>
         <p class="mb-2">Please select one of the core diagnostic topics below, or if you require direct help with project requirements, please <strong>contact instructor</strong>.</p>
         <ul class="list-disc list-inside space-y-1 text-slate-600">
+          <li><strong>Upload Error:</strong> <i>"Flip switch to UPLOAD position"</i></li>
           <li><strong>Power/Battery:</strong> <i>"Why won't my robot turn on?"</i> or <i>"Board resets when moving"</i></li>
           <li><strong>Upload/USB:</strong> <i>"Program will not upload"</i> or <i>"COM port missing"</i></li>
           <li><strong>Motors:</strong> <i>"Reverse motor direction"</i> or <i>"Robot curves straight"</i></li>
