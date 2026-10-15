@@ -86,8 +86,9 @@
   <header class="bg-white/95 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
       <div class="flex items-center space-x-3.5">
-        <div class="bg-gradient-to-tr from-navy-900 to-sky-500 text-white p-3 rounded-xl font-bold shadow-md shadow-blue-500/20">
-          <i class="fa-solid fa-graduation-cap text-2xl"></i>
+        <!-- Replaced FontAwesome Icon with icon1.png -->
+        <div class="w-12 h-12 rounded-xl overflow-hidden shadow-md shadow-blue-500/20 bg-gradient-to-tr from-navy-900 to-sky-500 p-0.5 flex items-center justify-center">
+          <img src="icon1.png" alt="Department Icon" class="w-full h-full object-cover rounded-lg">
         </div>
         <div>
           <span class="text-xs font-bold uppercase tracking-wider text-warmorange-600">Department of Mechanical Engineering</span>
@@ -213,7 +214,7 @@ void loop() {
       <div class="bg-blue-50/90 backdrop-blur-sm border-l-4 border-sky-500 p-4 rounded-xl flex items-start space-x-3 shadow-sm">
         <i class="fa-solid fa-circle-info text-sky-600 text-lg mt-0.5"></i>
         <div class="text-xs text-navy-950 leading-relaxed">
-          <strong class="font-bold">Next Steps:</strong> Once basic serial upload is verified, proceed to <strong>Motor Testing</strong> to check direction logic, or access the <strong>Troubleshooting Bot</strong> if the board isn't turning on or connecting.
+          <strong class="font-bold">Next Steps:</strong> Once basic serial upload is verified, proceed to <strong>Motor Testing</strong> to check direction logic, or open the <strong>Troubleshooting Assistant</strong> at the bottom right if you encounter errors.
         </div>
       </div>
 
@@ -246,17 +247,14 @@ void loop() {
               <span class="text-xs bg-slate-100 font-mono text-slate-600 px-2.5 py-1 rounded-md border border-slate-200">C / C++</span>
             </div>
             <p class="text-xs text-slate-600 leading-relaxed mb-3">
-              Use a boolean flag or helper functions to handle motor polarity directly in code:
+              Drive both wheels simultaneously and configure direction or standby pins:
             </p>
 
             <div class="bg-slate-900 rounded-xl p-3.5 border border-slate-800 text-xs font-mono text-slate-200 overflow-x-auto relative">
               <button onclick="copyCode('motor-code')" class="absolute top-2 right-2 text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-700 transition">
                 <i class="fa-regular fa-copy mr-1"></i>Copy
               </button>
-              <pre id="motor-code"><code>// Motor Control Pins
-
-
-                // Left Motor Pins
+              <pre id="motor-code"><code>// Left Motor Pins
 const int IN1 = 5;  // Left motor direction 1
 const int IN2 = 6;  // Left motor direction 2
 const int ENA = 3;  // Left motor speed PWM
@@ -267,65 +265,43 @@ const int IN4 = 8;  // Right motor direction 2
 const int ENB = 11; // Right motor speed PWM
 
 // Motor Driver Enable/Standby Pin
-const int STBY = 3; // On shield boards, STBY is often tied high or to a specific pin
+const int STBY = 3; 
 
 void driveBothMotors(int leftSpeed, int rightSpeed) {
-  // --- Left Motor Logic ---
   if (leftSpeed >= 0) {
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
   } else {
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
-    leftSpeed = -leftSpeed; // Convert to positive PWM value
+    leftSpeed = -leftSpeed;
   }
   analogWrite(ENA, leftSpeed);
 
-  // --- Right Motor Logic ---
   if (rightSpeed >= 0) {
     digitalWrite(IN3, HIGH);
     digitalWrite(IN4, LOW);
   } else {
     digitalWrite(IN3, LOW);
     digitalWrite(IN4, HIGH);
-    rightSpeed = -rightSpeed; // Convert to positive PWM value
+    rightSpeed = -rightSpeed;
   }
   analogWrite(ENB, rightSpeed);
 }
 
 void setup() {
-  // Set all motor control pins as outputs
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-  pinMode(ENA, OUTPUT);
-
-  pinMode(IN3, OUTPUT);
-  pinMode(IN4, OUTPUT);
-  pinMode(ENB, OUTPUT);
-
+  pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT); pinMode(ENA, OUTPUT);
+  pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT); pinMode(ENB, OUTPUT);
   pinMode(STBY, OUTPUT);
-  digitalWrite(STBY, HIGH); // Enable the motor driver chip
+  digitalWrite(STBY, HIGH);
 }
 
 void loop() {
-  // Drive both wheels FORWARD (Speed: 0 to 255)
-  driveBothMotors(180, 180);
+  driveBothMotors(180, 180); // Both forward
   delay(2000);
-
-  // Stop both motors
-  driveBothMotors(0, 0);
+  driveBothMotors(0, 0);     // Stop
   delay(1000);
-
-  // Drive both wheels REVERSE
-  driveBothMotors(-180, -180);
-  delay(2000);
-
-  // Stop both motors
-  driveBothMotors(0, 0);
-  delay(1000);
-}
-                
-</code></pre>
+}</code></pre>
             </div>
           </div>
         </div>
@@ -497,57 +473,24 @@ void loop() {
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3.5 border border-slate-800 text-xs font-mono text-slate-200 overflow-x-auto">
-              <pre id="ultrasonic-exact-code"><code>
-  // Complete obstacle threshold test
+              <pre id="ultrasonic-exact-code"><code>// Complete obstacle threshold test
 #define TRIG_PIN 13
 #define ECHO_PIN 12
 #define MAX_DISTANCE 200
 #define OBSTACLE_DISTANCE 18
-long getDistance()
-{
-digitalWrite(TRIG_PIN, LOW);
-delayMicroseconds(2);
-digitalWrite(TRIG_PIN, HIGH);
-delayMicroseconds(10);
-digitalWrite(TRIG_PIN, LOW);
-long duration = pulseIn(ECHO_PIN, HIGH, 25000);
-if (duration == 0)
-{
-return MAX_DISTANCE;
+
+long getDistance() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+  long duration = pulseIn(ECHO_PIN, HIGH, 25000);
+  if (duration == 0) return MAX_DISTANCE;
+  long distance = duration / 58;
+  if (distance > MAX_DISTANCE) distance = MAX_DISTANCE;
+  return distance;
 }
-long distance = duration / 58;
-if (distance > MAX_DISTANCE)
-{
-distance = MAX_DISTANCE;
-}
-return distance;
-}
-void setup()
-{
-Serial.begin(9600);
-pinMode(TRIG_PIN, OUTPUT);
-pinMode(ECHO_PIN, INPUT);
-}
-void loop()
-{
-long distance = getDistance();
-if (distance < OBSTACLE_DISTANCE)
-{
-Serial.println("OBSTACLE - STOP");
-}
-else
-{
-Serial.println("CLEAR - MOVE");
-}
-Serial.print("Distance: ");
-Serial.print(distance);
-Serial.println(" cm");
-delay(100);
-}              
-                
-                const int TRIG_PIN = A1;
-const int ECHO_PIN = A2;
-const float OBSTACLE_LIMIT_CM = 15.0;
 
 void setup() {
   Serial.begin(9600);
@@ -555,33 +498,18 @@ void setup() {
   pinMode(ECHO_PIN, INPUT);
 }
 
-float readDistanceCM() {
-  digitalWrite(TRIG_PIN, LOW);
-  delayMicroseconds(2);
-  digitalWrite(TRIG_PIN, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(TRIG_PIN, LOW);
-
-  long duration = pulseIn(ECHO_PIN, HIGH, 30000);
-  if (duration == 0) return 999.0;
-  return duration * 0.0343 / 2.0;
-}
-
 void loop() {
-  float dist = readDistanceCM();
-  Serial.print("Distance: ");
-  Serial.print(dist);
-  Serial.println(" cm");
-
-  if (dist < OBSTACLE_LIMIT_CM) {
-    Serial.println("WARNING: Obstacle Detected!");
+  long distance = getDistance();
+  if (distance < OBSTACLE_DISTANCE) {
+    Serial.println("OBSTACLE - STOP");
+  } else {
+    Serial.println("CLEAR - MOVE");
   }
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println(" cm");
   delay(100);
-}
-              
-              
-              
-              </code></pre>
+}</code></pre>
             </div>
           </div>
         </div>
@@ -608,13 +536,13 @@ void loop() {
               <div class="mt-4 relative h-6 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
                 <div id="obstacle-bar" class="h-full bg-sky-500 transition-all duration-150" style="width: 26%;"></div>
                 <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-slate-700">
-                  Threshold: 15 cm
+                  Threshold: 18 cm
                 </span>
               </div>
             </div>
 
             <p class="text-xs text-slate-500 leading-relaxed">
-              Drag the slider to test threshold triggering in software. If distance drops below 15cm, an obstacle detection flag is set.
+              Drag the slider to test threshold triggering in software. If distance drops below 18cm, an obstacle detection flag is set.
             </p>
           </div>
         </div>
@@ -623,112 +551,132 @@ void loop() {
 
     </div>
 
-    <!-- TAB 5: TROUBLESHOOTING CHATBOT TAB -->
-    <div id="view-bot" class="hidden h-[calc(100vh-160px)] flex flex-col card-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
-      
-      <!-- Bot Header -->
-      <div class="p-4 bg-navy-900 text-white flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-sky-400 font-bold">
-            <i class="fa-solid fa-robot text-lg"></i>
+    <!-- TAB 5: TROUBLESHOOTING BOT PAGE HUB -->
+    <div id="view-bot" class="hidden space-y-6">
+      <div class="card-white rounded-2xl p-6 shadow-sm">
+        <div class="flex items-center space-x-3 mb-4">
+          <div class="w-10 h-10 rounded-xl bg-navy-900 text-white flex items-center justify-center font-bold text-lg">
+            <i class="fa-solid fa-robot text-sky-400"></i>
           </div>
           <div>
-            <h2 class="font-bold text-sm leading-tight">Hardware Diagnostics & Troubleshooting Assistant</h2>
-            <p class="text-xs text-sky-200">Instant help for power, battery, motors, and sensors</p>
+            <h2 class="text-xl font-bold text-slate-900">Interactive Diagnostic Assistant</h2>
+            <p class="text-xs text-slate-600">Click any issue below or launch the floating bot to troubleshoot</p>
           </div>
         </div>
-        <span class="text-[10px] bg-sky-500/20 text-sky-200 border border-sky-400/30 px-2 py-1 rounded-md font-mono">
-          Online
-        </span>
-      </div>
 
-      <!-- Chat Output Messages -->
-      <div id="tab-chat-window" class="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50/70 text-sm">
-        <div class="flex items-start space-x-3">
-          <div class="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs shrink-0 mt-1 shadow-sm">
-            <i class="fa-solid fa-robot"></i>
-          </div>
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 max-w-[85%] text-slate-800 shadow-sm text-xs leading-relaxed">
-            Hello! I am your Project Diagnostic Bot. Select a topic below or type your question:
-            <ul class="list-disc list-inside mt-2 space-y-1 text-slate-600">
-              <li><strong>Upload / Programmer Error:</strong> Flip switch on board to UPLOAD position.</li>
-              <li><strong>Power Issues:</strong> Robot won't turn on, battery voltage drops, board reset.</li>
-              <li><strong>Motor Reversing:</strong> Software polarity fixes, motor driver overheating, PWM balancing.</li>
-              <li><strong>Sensor Errors:</strong> MPU6050 missing chip, I2C scan failure, sonar timeouts.</li>
-              <li><strong>Arduino IDE:</strong> Port detection, missing CH340 drivers, compilation errors.</li>
-            </ul>
-          </div>
+        <p class="text-xs text-slate-600 leading-relaxed mb-6">
+          The Troubleshooting Bot is always available at the bottom right corner of your screen on <strong>every page</strong>. Click any topic button below to open the chat window immediately with diagnostic steps:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+          <button onclick="triggerFloatingOption('not in sync resp=0x00 programmer is not responding error')" class="p-4 rounded-xl border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-left font-medium transition shadow-sm flex items-start gap-3">
+            <i class="fa-solid fa-triangle-exclamation text-amber-600 text-base mt-0.5"></i>
+            <div>
+              <strong class="block font-bold">Upload / Programmer Error</strong>
+              <span class="text-[11px] text-amber-800">Fix for "not in sync: resp=0x00" and COM port upload failures.</span>
+            </div>
+          </button>
+
+          <button onclick="triggerFloatingOption('Robot does not turn on')" class="p-4 rounded-xl border border-red-200 bg-red-50 hover:bg-red-100 text-red-900 text-left font-medium transition shadow-sm flex items-start gap-3">
+            <i class="fa-solid fa-power-off text-red-600 text-base mt-0.5"></i>
+            <div>
+              <strong class="block font-bold">Robot Won't Turn On</strong>
+              <span class="text-[11px] text-red-800">Check switch states, battery polarity, and shield connections.</span>
+            </div>
+          </button>
+
+          <button onclick="triggerFloatingOption('Battery / Power issues')" class="p-4 rounded-xl border border-orange-200 bg-orange-50 hover:bg-orange-100 text-orange-900 text-left font-medium transition shadow-sm flex items-start gap-3">
+            <i class="fa-solid fa-battery-quarter text-orange-600 text-base mt-0.5"></i>
+            <div>
+              <strong class="block font-bold">Battery & Voltage Dips</strong>
+              <span class="text-[11px] text-orange-800">Fix microcontroller restarts and twitching motor brownouts.</span>
+            </div>
+          </button>
+
+          <button onclick="triggerFloatingOption('Reverse motor direction')" class="p-4 rounded-xl border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-900 text-left font-medium transition shadow-sm flex items-start gap-3">
+            <i class="fa-solid fa-rotate text-sky-600 text-base mt-0.5"></i>
+            <div>
+              <strong class="block font-bold">Reverse Motor Direction</strong>
+              <span class="text-[11px] text-sky-800">Software polarity flip without changing physical wires.</span>
+            </div>
+          </button>
+
+          <button onclick="triggerFloatingOption('IMU sensor error')" class="p-4 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 text-blue-900 text-left font-medium transition shadow-sm flex items-start gap-3">
+            <i class="fa-solid fa-compass text-blue-600 text-base mt-0.5"></i>
+            <div>
+              <strong class="block font-bold">IMU MPU6050 Errors</strong>
+              <span class="text-[11px] text-blue-800">Resolve "Failed to find MPU6050 chip" and I2C address issues.</span>
+            </div>
+          </button>
+
+          <button onclick="triggerFloatingOption('Where do I start?')" class="p-4 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-left font-medium transition shadow-sm flex items-start gap-3">
+            <i class="fa-solid fa-rocket text-emerald-600 text-base mt-0.5"></i>
+            <div>
+              <strong class="block font-bold">Where Do I Start?</strong>
+              <span class="text-[11px] text-emerald-800">Step-by-step setup guide for initial testing.</span>
+            </div>
+          </button>
         </div>
       </div>
-
-      <!-- Quick Option Chips -->
-      <div class="px-4 py-2.5 bg-white border-t border-slate-200 flex gap-2 overflow-x-auto text-xs whitespace-nowrap">
-        <button onclick="askBotTab('not in sync resp=0x00 programmer is not responding error')" class="px-3 py-1.5 bg-amber-100 hover:bg-amber-200 text-amber-800 border border-amber-300 rounded-lg transition font-medium">
-          ⚠️ Upload / Programmer Error
-        </button>
-        <button onclick="askBotTab('Robot does not turn on')" class="px-3 py-1.5 bg-slate-100 hover:bg-warmorange-100 text-slate-700 hover:text-warmorange-600 border border-slate-200 rounded-lg transition font-medium">
-          🔴 Robot won't turn on
-        </button>
-        <button onclick="askBotTab('Battery / Power issues')" class="px-3 py-1.5 bg-slate-100 hover:bg-warmorange-100 text-slate-700 hover:text-warmorange-600 border border-slate-200 rounded-lg transition font-medium">
-          🔋 Battery / Power issues
-        </button>
-        <button onclick="askBotTab('Reverse motor direction')" class="px-3 py-1.5 bg-slate-100 hover:bg-sky-50 text-slate-700 hover:text-navy-900 border border-slate-200 rounded-lg transition font-medium">
-          🔄 Reverse motor direction
-        </button>
-        <button onclick="askBotTab('IMU sensor error')" class="px-3 py-1.5 bg-slate-100 hover:bg-sky-50 text-slate-700 hover:text-navy-900 border border-slate-200 rounded-lg transition font-medium">
-          🧭 IMU sensor error
-        </button>
-        <button onclick="askBotTab('Where do I start?')" class="px-3 py-1.5 bg-slate-100 hover:bg-sky-50 text-slate-700 hover:text-navy-900 border border-slate-200 rounded-lg transition font-medium">
-          🚀 Where do I start?
-        </button>
-      </div>
-
-      <!-- Input Area -->
-      <form onsubmit="handleTabChatSubmit(event)" class="p-3 bg-white border-t border-slate-200 flex gap-2">
-        <input type="text" id="tab-chat-input" placeholder="Type a question regarding power, code, or sensors..." class="flex-grow bg-slate-50 text-slate-800 text-sm px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-navy-900 transition">
-        <button type="submit" class="bg-navy-900 hover:bg-navy-800 text-white font-bold px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm text-xs">
-          <span>Send</span>
-          <i class="fa-solid fa-paper-plane"></i>
-        </button>
-      </form>
-
     </div>
 
   </main>
 
-  <!-- FLOATING CHATBOT WIDGET -->
+  <!-- FLOATING CHATBOT WIDGET (VISIBLE ON ALL PAGES/TABS) -->
   <div id="floating-chat-container" class="fixed bottom-5 right-5 z-50">
     
     <!-- Floating Toggle Button -->
     <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="w-14 h-14 bg-navy-900 hover:bg-navy-800 text-white rounded-full flex items-center justify-center shadow-xl border-2 border-white transition-all transform hover:scale-105">
-      <i id="chat-icon-open" class="fa-solid fa-comments text-xl"></i>
+      <i id="chat-icon-open" class="fa-solid fa-robot text-xl"></i>
       <i id="chat-icon-close" class="fa-solid fa-xmark text-xl hidden"></i>
     </button>
 
     <!-- Floating Chat Popup Window -->
-    <div id="floating-chat-window" class="hidden absolute bottom-16 right-0 w-[90vw] sm:w-[380px] h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+    <div id="floating-chat-window" class="hidden absolute bottom-16 right-0 w-[92vw] sm:w-[390px] h-[520px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
       <!-- Header -->
       <div class="p-3.5 bg-navy-900 text-white flex justify-between items-center">
         <div class="flex items-center space-x-2">
-          <i class="fa-solid fa-robot text-sky-400"></i>
-          <span class="font-bold text-xs">Diagnostic Assistant</span>
+          <i class="fa-solid fa-robot text-sky-400 text-base"></i>
+          <div>
+            <span class="font-bold text-xs block">Diagnostic Assistant</span>
+            <span class="text-[10px] text-sky-200 block">Click an option or type a question</span>
+          </div>
         </div>
-        <button onclick="toggleFloatingChat()" class="text-slate-300 hover:text-white text-sm">
+        <button onclick="toggleFloatingChat()" class="text-slate-300 hover:text-white text-sm p-1">
           <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Quick Option Chips Scrollbar -->
+      <div class="px-3 py-2 bg-slate-100 border-b border-slate-200 flex gap-1.5 overflow-x-auto text-xs whitespace-nowrap">
+        <button onclick="askBotWidget('not in sync resp=0x00 programmer is not responding error')" class="px-2.5 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-md transition font-medium text-[11px]">
+          ⚠️ Upload Error
+        </button>
+        <button onclick="askBotWidget('Robot does not turn on')" class="px-2.5 py-1 bg-white hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-md transition font-medium text-[11px]">
+          🔴 Power
+        </button>
+        <button onclick="askBotWidget('Battery / Power issues')" class="px-2.5 py-1 bg-white hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-md transition font-medium text-[11px]">
+          🔋 Battery
+        </button>
+        <button onclick="askBotWidget('Reverse motor direction')" class="px-2.5 py-1 bg-white hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-md transition font-medium text-[11px]">
+          🔄 Reverse Motors
+        </button>
+        <button onclick="askBotWidget('IMU sensor error')" class="px-2.5 py-1 bg-white hover:bg-slate-200 text-slate-800 border border-slate-300 rounded-md transition font-medium text-[11px]">
+          🧭 IMU
         </button>
       </div>
 
       <!-- Messages Window -->
       <div id="widget-chat-messages" class="flex-grow p-3 overflow-y-auto space-y-3 bg-slate-50 text-xs">
-        <div class="bg-white border border-slate-200 rounded-xl p-3 text-slate-700 shadow-sm">
-          Hi! Ask me anything about power issues, dead batteries, upload errors, motor reversing, or sensor diagnostics!
+        <div class="bg-white border border-slate-200 rounded-xl p-3 text-slate-700 shadow-sm leading-relaxed">
+          Hello! I am your Project Diagnostic Bot. Select a quick option above or ask a question regarding upload errors, power, motors, or sensors!
         </div>
       </div>
 
       <!-- Input Area -->
       <form onsubmit="handleWidgetChatSubmit(event)" class="p-2 bg-white border-t border-slate-200 flex gap-1.5">
-        <input type="text" id="widget-chat-input" placeholder="Ask a question..." class="flex-grow bg-slate-100 text-slate-800 text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-navy-900">
-        <button type="submit" class="bg-navy-900 text-white px-3 py-2 rounded-lg text-xs font-semibold">
+        <input type="text" id="widget-chat-input" placeholder="Type a query or error message..." class="flex-grow bg-slate-100 text-slate-800 text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-navy-900">
+        <button type="submit" class="bg-navy-900 hover:bg-navy-800 text-white px-3 py-2 rounded-lg text-xs font-semibold transition">
           <i class="fa-solid fa-paper-plane"></i>
         </button>
       </form>
@@ -851,7 +799,7 @@ void loop() {
 
       bar.style.width = `${percentage}%`;
 
-      if (val < 15) {
+      if (val < 18) {
         bar.className = 'h-full bg-red-500 transition-all duration-150';
         badge.innerText = 'OBSTACLE DETECTED';
         badge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 border border-red-300 animate-pulse';
@@ -871,6 +819,14 @@ void loop() {
       win.classList.toggle('hidden');
       iconOpen.classList.toggle('hidden');
       iconClose.classList.toggle('hidden');
+    }
+
+    function triggerFloatingOption(query) {
+      const win = document.getElementById('floating-chat-window');
+      if (win.classList.contains('hidden')) {
+        toggleFloatingChat();
+      }
+      askBotWidget(query);
     }
 
     // Comprehensive Local Hardware Diagnostic Knowledge Base
@@ -912,16 +868,6 @@ void loop() {
           • <strong>Solution:</strong> Fully charge all battery cells. Lower motor acceleration or starting PWM values in software (e.g., set startup PWM to 150 instead of 255).
         `
       },
-      {
-        id: "battery_charging_heat",
-        tags: ["charge", "charging", "hot", "warm", "overheat", "charger"],
-        solution: `
-          <strong>Battery Charging Safety:</strong><br>
-          1. <strong>Temperature Check:</strong> Batteries getting uncomfortably hot during charging indicates overcurrent or damaged internal cells. Disconnect the charger immediately.<br>
-          2. <strong>Voltage Verification:</strong> Verify charger output matches battery specifications (e.g., 8.4V output for dual 18650 series setup).<br>
-          3. <strong>Charge Time:</strong> standard charging typically completes within 2–4 hours depending on capacity.
-        `
-      },
 
       // 2. ARDUINO, USB & UPLOAD PROBLEMS
       {
@@ -934,15 +880,6 @@ void loop() {
           3. <strong>Board & Port Settings:</strong> In Arduino IDE, navigate to <i>Tools &gt; Board</i> and choose <code>Arduino Uno</code>. Under <i>Tools &gt; Port</i>, pick the active COM port.<br>
           4. <strong>Serial Drivers:</strong> If using clone boards, ensure the CH340 or CP2102 USB driver is installed on your OS.<br>
           5. <strong>RX/TX Pin Conflict:</strong> Unplug any hardware connected to digital pins 0 (RX) and 1 (TX) during sketch uploading, as they share the main serial interface.
-        `
-      },
-      {
-        id: "serial_garbage_characters",
-        tags: ["serial", "monitor", "garbage", "symbols", "baud", "gibberish", "text"],
-        solution: `
-          <strong>Serial Monitor Gibberish / Symbol Errors:</strong><br>
-          • <strong>Cause:</strong> Baud rate mismatch between C code and the Serial Monitor configuration.<br>
-          • <strong>Solution:</strong> Check the baud rate in your code (e.g., <code>Serial.begin(9600);</code>) and ensure the dropdown in the bottom-right corner of the Arduino Serial Monitor is set to the exact same speed (9600 baud).
         `
       },
 
@@ -959,27 +896,6 @@ void loop() {
           Or invert motor PWM scaling inside motor control functions.
         `
       },
-      {
-        id: "motor_curves_straight_drive",
-        tags: ["curve", "drift", "crooked", "straight", "uneven", "speed", "pwm", "pulls"],
-        solution: `
-          <strong>Correcting Curved Straight Drives:</strong><br>
-          • DC motors naturally have slight manufacturing variations in rotation speed.<br>
-          • <strong>Software Tuning:</strong> Adjust left and right PWM channel values independently:<br>
-          <code>analogWrite(LEFT_PWM_PIN, 180);</code><br>
-          <code>analogWrite(RIGHT_PWM_PIN, 165); // Lower speed slightly on faster side</code>
-        `
-      },
-      {
-        id: "motor_driver_overheating",
-        tags: ["motor driver", "l298n", "tb6612", "hot", "driver", "chip hot", "smoke"],
-        solution: `
-          <strong>Motor Driver Thermal Protection:</strong><br>
-          1. <strong>Stall Current:</strong> Check if mechanical obstruction or tight gearbox gears are stalling the motor, driving current consumption up.<br>
-          2. <strong>Enable Pins (STBY):</strong> Ensure the Standby pin (STBY) is pulled HIGH via 5V logic. If left floating, the driver operates erratically.<br>
-          3. <strong>PWM Limits:</strong> Reduce continuous PWM outputs to 80-90% maximum duty cycle during testing.
-        `
-      },
 
       // 4. IMU (MPU6050) DIAGNOSTICS
       {
@@ -989,8 +905,7 @@ void loop() {
           <strong>IMU MPU6050 Initialization Failures:</strong><br>
           1. <strong>I2C Wiring:</strong> Confirm SDA connects to pin A4 and SCL to pin A5 on the Uno board, with VCC receiving 5V or 3.3V.<br>
           2. <strong>I2C Bus Address:</strong> The standard address is <code>0x68</code>. If the AD0 pin is connected to VCC, the address shifts to <code>0x69</code>.<br>
-          3. <strong>Library Requirements:</strong> Verify both <i>Adafruit_MPU6050</i> and <i>Adafruit_Sensor</i> libraries are installed in the IDE.<br>
-          4. <strong>I2C Scanner:</strong> Run an I2C scanner sketch to confirm whether the board detects any device on the bus.
+          3. <strong>Library Requirements:</strong> Verify both <i>Adafruit_MPU6050</i> and <i>Adafruit_Sensor</i> libraries are installed in the IDE.
         `
       },
 
@@ -1000,27 +915,13 @@ void loop() {
         tags: ["ultrasonic", "trig", "echo", "obstacle", "distance", "zero", "999", "sonar", "reading", "timeout"],
         solution: `
           <strong>Ultrasonic Sensor Reading Fixes:</strong><br>
-          1. <strong>Pin Definitions:</strong> Verify <code>TRIG_PIN</code> and <code>ECHO_PIN</code> assignments in code match actual digital/analog board header connections.<br>
+          1. <strong>Pin Definitions:</strong> Verify <code>TRIG_PIN</code> and <code>ECHO_PIN</code> assignments in code match actual board pins.<br>
           2. <strong>Pulse Timeout:</strong> Use a timeout limit in <code>pulseIn()</code> to prevent code execution freezes if sound reflections miss the receiver:<br>
-          <code>long duration = pulseIn(ECHO_PIN, HIGH, 30000); // 30ms timeout</code><br>
-          3. <strong>Sampling Intervals:</strong> Place a 30ms to 50ms delay between distance checks to prevent sound wave echo overlap.
+          <code>long duration = pulseIn(ECHO_PIN, HIGH, 25000);</code>
         `
       },
 
-      // 6. LINE TRACKING DIAGNOSTICS
-      {
-        id: "line_sensor_logic_inverted",
-        tags: ["line", "sensor", "black", "white", "threshold", "tracking", "lost", "reacquire", "ir"],
-        solution: `
-          <strong>Line Sensor Calibration & Inversion:</strong><br>
-          1. <strong>Threshold Inversion:</strong> Infrared line modules output different logic levels depending on surface reflectiveness (black track vs. white background). Flip your reading logic:<br>
-          <code>if (digitalRead(LINE_CENTER) == LOW) { /* Detected Dark Line */ }</code><br>
-          2. <strong>Potentiometer Sensitivity:</strong> Adjust the small potentiometer trimmer screws on the IR sensor modules until the onboard indicator LEDs light up over black tape and turn off over the light surface.<br>
-          3. <strong>Line Search Function:</strong> If all 3 sensors read white/lost, program a sweeping turn (pivot left then right) to reacquire the track.
-        `
-      },
-
-      // 7. GENERAL GETTING STARTED
+      // 6. GENERAL GETTING STARTED
       {
         id: "getting_started_guide",
         tags: ["start", "where do i start", "begin", "setup", "first steps", "guide", "instructions"],
@@ -1029,8 +930,7 @@ void loop() {
           1. <strong>Board Switch:</strong> Flip the switch on the right side of the LED light to <strong>UPLOAD</strong>.<br>
           2. <strong>USB Setup:</strong> Connect Arduino to PC via USB, open Arduino IDE, and set board/COM port.<br>
           3. <strong>Basic Communication:</strong> Upload a basic test sketch printing to <i>Serial Monitor (9600 baud)</i>.<br>
-          4. <strong>Motor Diagnostic:</strong> Run motor tests to confirm drive directions and adjust polarity in code if needed.<br>
-          5. <strong>Sensor Diagnostics:</strong> Test IMU MPU6050 and ultrasonic sensors individually using provided code snippets before combining logic into line-following routines.
+          4. <strong>Motor Diagnostic:</strong> Run motor tests to confirm drive directions and adjust polarity in code if needed.
         `
       }
     ];
@@ -1060,7 +960,7 @@ void loop() {
         `;
       }
 
-      // Domain Keyword Filter: Ensure query relates to hardware, robotics, Arduino, code, or lab troubleshooting
+      // Domain Keyword Filter
       const domainKeywords = [
         "robot", "arduino", "code", "motor", "wheel", "battery", "power", "switch", 
         "sensor", "imu", "mpu6050", "ultrasonic", "sonar", "trig", "echo", "line", 
@@ -1111,64 +1011,19 @@ void loop() {
         return bestMatch.solution;
       }
 
-      // Fallback response for ambiguous technical queries
+      // Fallback response
       return `
         <p class="mb-2"><strong>Unrecognized Issue:</strong> I couldn't find an exact match for your hardware query.</p>
-        <p class="mb-2">Please select one of the core diagnostic topics below, or if you require direct help with project requirements, please <strong>contact instructor</strong>.</p>
-        <ul class="list-disc list-inside space-y-1 text-slate-600">
-          <li><strong>Upload Error:</strong> <i>"Flip switch to UPLOAD position"</i></li>
-          <li><strong>Power/Battery:</strong> <i>"Why won't my robot turn on?"</i> or <i>"Board resets when moving"</i></li>
-          <li><strong>Upload/USB:</strong> <i>"Program will not upload"</i> or <i>"COM port missing"</i></li>
-          <li><strong>Motors:</strong> <i>"Reverse motor direction"</i> or <i>"Robot curves straight"</i></li>
-          <li><strong>Sensors:</strong> <i>"Failed to find MPU6050"</i> or <i>"Ultrasonic distance reading zero"</i></li>
-        </ul>
+        <p class="mb-2">Please select one of the core diagnostic topics above, or if you require direct help with project requirements, please <strong>contact instructor</strong>.</p>
       `;
     }
 
-    // Tab Chat Submit
-    function askBotTab(question) {
-      document.getElementById('tab-chat-input').value = question;
-      handleTabChatSubmit(new Event('submit'));
+    // Floating Widget Chat Submit
+    function askBotWidget(query) {
+      document.getElementById('widget-chat-input').value = query;
+      handleWidgetChatSubmit(new Event('submit'));
     }
 
-    function handleTabChatSubmit(e) {
-      e.preventDefault();
-      const input = document.getElementById('tab-chat-input');
-      const query = input.value.trim();
-      if (!query) return;
-
-      const win = document.getElementById('tab-chat-window');
-
-      // User Message
-      const userDiv = document.createElement('div');
-      userDiv.className = 'flex items-start justify-end space-x-2';
-      userDiv.innerHTML = `
-        <div class="bg-navy-900 text-white rounded-2xl p-3 max-w-[85%] text-xs shadow-sm">
-          ${escapeHTML(query)}
-        </div>
-      `;
-      win.appendChild(userDiv);
-      input.value = '';
-
-      // Bot Response
-      setTimeout(() => {
-        const reply = queryKnowledgeBase(query);
-        const botDiv = document.createElement('div');
-        botDiv.className = 'flex items-start space-x-3';
-        botDiv.innerHTML = `
-          <div class="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs shrink-0 mt-1 shadow-sm">
-            <i class="fa-solid fa-robot"></i>
-          </div>
-          <div class="bg-white border border-slate-200 rounded-2xl p-4 max-w-[85%] text-slate-800 shadow-sm text-xs leading-relaxed">
-            ${reply}
-          </div>
-        `;
-        win.appendChild(botDiv);
-        win.scrollTop = win.scrollHeight;
-      }, 300);
-    }
-
-    // Widget Chat Submit
     function handleWidgetChatSubmit(e) {
       e.preventDefault();
       const input = document.getElementById('widget-chat-input');
@@ -1186,11 +1041,11 @@ void loop() {
       setTimeout(() => {
         const reply = queryKnowledgeBase(query);
         const botDiv = document.createElement('div');
-        botDiv.className = 'bg-white border border-slate-200 rounded-xl p-3 text-slate-800 text-xs shadow-sm';
+        botDiv.className = 'bg-white border border-slate-200 rounded-xl p-3 text-slate-800 text-xs shadow-sm leading-relaxed';
         botDiv.innerHTML = reply;
         win.appendChild(botDiv);
         win.scrollTop = win.scrollHeight;
-      }, 300);
+      }, 250);
     }
 
     function escapeHTML(str) {
