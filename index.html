@@ -3,499 +3,917 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MCE226L / ISM216L Project Dashboard & Assistant</title>
+  <title>Project Testing & Troubleshooting Hub</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            navy: {
+              800: '#1e3a8a',
+              900: '#1e40af',
+              950: '#172554',
+            },
+            skyblue: {
+              400: '#38bdf8',
+              500: '#3b82f6',
+              600: '#2563eb',
+            },
+            warmorange: {
+              100: '#ffedd5',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+            }
+          }
+        }
+      }
+    }
+  </script>
   <style>
-    :root {
-      --primary: #2563eb;
-      --primary-hover: #1d4ed8;
-      --bg-color: #f8fafc;
-      --card-bg: #ffffff;
-      --text-main: #1e293b;
-      --text-muted: #64748b;
-      --border-color: #e2e8f0;
-      --chat-user-bg: #e0e7ff;
-      --chat-bot-bg: #f1f5f9;
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
     }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; padding-bottom: 80px; }
-
-    header {
-      background: linear-gradient(135deg, #1e3a8a, #2563eb);
-      color: #fff;
-      padding: 2rem 1rem;
-      text-align: center;
-      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    .code-block {
+      font-family: 'JetBrains Mono', monospace;
     }
-    header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
-    header p { opacity: 0.9; font-size: 1rem; }
-
-    nav {
-      display: flex;
-      justify-content: center;
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #3b82f6;
+    }
+    .card-white {
       background: #ffffff;
-      border-bottom: 1px solid var(--border-color);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      overflow-x: auto;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
     }
-    nav button {
-      background: none;
-      border: none;
-      padding: 1rem 1.5rem;
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-      border-bottom: 3px solid transparent;
-      white-space: nowrap;
-      transition: all 0.2s;
-    }
-    nav button:hover, nav button.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    .container { max-width: 1100px; margin: 2rem auto; padding: 0 1rem; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
-    .card {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 1.5rem;
-      border: 1px solid var(--border-color);
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      margin-bottom: 1.5rem;
-    }
-    .card h2 { color: #0f172a; margin-bottom: 1rem; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem; }
-
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid var(--border-color); padding: 0.75rem; text-align: left; }
-    th { background-color: #f1f5f9; font-weight: 600; }
-    tr:nth-child(even) { background-color: #f8fafc; }
-    input[type="text"] { width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 4px; }
-
-    .checklist { list-style: none; }
-    .checklist li { padding: 0.6rem 0; border-bottom: 1px dashed var(--border-color); display: flex; align-items: center; gap: 0.75rem; }
-    .checklist input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
-
-    .btn {
-      background-color: var(--primary);
-      color: white;
-      padding: 0.6rem 1.2rem;
-      border: none;
-      border-radius: 6px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn:hover { background-color: var(--primary-hover); }
-
-    /* Floating Chatbot Widget */
-    #chat-widget {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      width: 380px;
-      height: 520px;
-      background: #ffffff;
-      border-radius: 16px;
-      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
-      border: 1px solid var(--border-color);
-      display: flex;
-      flex-direction: column;
-      z-index: 1000;
-      transition: transform 0.3s ease, opacity 0.3s ease;
-    }
-    #chat-widget.collapsed {
-      transform: translateY(110%);
-      opacity: 0;
-      pointer-events: none;
-    }
-    .chat-header {
-      background: var(--primary);
-      color: white;
-      padding: 1rem;
-      border-top-left-radius: 16px;
-      border-top-right-radius: 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: bold;
-    }
-    .chat-header button { background: none; border: none; color: white; font-size: 1.2rem; cursor: pointer; }
-    .chat-messages {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-    .msg { max-width: 80%; padding: 0.75rem 1rem; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; }
-    .msg.bot { background: var(--chat-bot-bg); align-self: flex-start; border-bottom-left-radius: 2px; }
-    .msg.user { background: var(--primary); color: white; align-self: flex-end; border-bottom-right-radius: 2px; }
-    
-    .chat-quick-queries { padding: 0.5rem 1rem; display: flex; gap: 0.5rem; overflow-x: auto; border-top: 1px solid var(--border-color); background: #fafafa; }
-    .quick-chip {
-      background: #e2e8f0;
-      border: none;
-      padding: 0.3rem 0.6rem;
-      border-radius: 12px;
-      font-size: 0.75rem;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-    .quick-chip:hover { background: #cbd5e1; }
-
-    .chat-input-area { display: flex; border-top: 1px solid var(--border-color); padding: 0.5rem; background: #fff; border-bottom-left-radius: 16px; border-bottom-right-radius: 16px; }
-    .chat-input-area input { flex: 1; border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 6px; outline: none; }
-    .chat-input-area button { margin-left: 0.5rem; }
-
-    #chat-toggle-btn {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: var(--primary);
-      color: white;
-      border: none;
-      padding: 1rem 1.5rem;
-      border-radius: 50px;
-      font-weight: bold;
-      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
-      cursor: pointer;
-      z-index: 999;
-    }
-
-    @media(max-width: 480px) {
-      #chat-widget { width: 92%; right: 4%; bottom: 10px; height: 80vh; }
+    .card-highlight {
+      border: 1px solid #ffedd5;
+      background: linear-gradient(135deg, #ffffff 0%, #fff7ed 100%);
     }
   </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
 
-  <header>
-    <h1>MCE226L / ISM216L Project Hub</h1>
-    <p>Arduino Line Following & Obstacle Avoidance Robot Dashboard</p>
+  <!-- Header / Navigation -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="bg-gradient-to-tr from-navy-900 to-sky-500 text-white p-2.5 rounded-xl font-bold shadow-md shadow-blue-500/20">
+          <i class="fa-solid fa-microchip text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 leading-none tracking-tight">Project Testing & Troubleshooting Hub</h1>
+          <p class="text-xs text-navy-900 font-medium mt-0.5">Arduino Setup, Hardware Verification & Diagnostics</p>
+        </div>
+      </div>
+      
+      <!-- Desktop Nav Tabs -->
+      <div class="hidden md:flex space-x-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+        <button onclick="switchTab('start')" id="tab-btn-start" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-navy-900 text-white shadow-sm transition-all">
+          <i class="fa-solid fa-flag mr-1.5 text-sky-400"></i>Getting Started
+        </button>
+        <button onclick="switchTab('motor')" id="tab-btn-motor" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-navy-900 hover:bg-white transition-all">
+          <i class="fa-solid fa-gear mr-1.5 text-warmorange-500"></i>Motor Testing
+        </button>
+        <button onclick="switchTab('imu')" id="tab-btn-imu" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-navy-900 hover:bg-white transition-all">
+          <i class="fa-solid fa-compass mr-1.5 text-sky-500"></i>IMU (MPU6050)
+        </button>
+        <button onclick="switchTab('obstacle')" id="tab-btn-obstacle" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-navy-900 hover:bg-white transition-all">
+          <i class="fa-solid fa-radar mr-1.5 text-navy-800"></i>Obstacle Sensor
+        </button>
+        <button onclick="switchTab('bot')" id="tab-btn-bot" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-navy-900 hover:bg-white transition-all">
+          <i class="fa-solid fa-robot mr-1.5 text-warmorange-500"></i>Troubleshooting Bot
+        </button>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <div class="md:hidden">
+        <button id="mobile-menu-btn" class="p-2 text-slate-600 hover:text-navy-900 focus:outline-none">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Nav Dropdown -->
+    <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-slate-200 px-4 py-3 space-y-2">
+      <button onclick="switchTab('start'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-white bg-navy-900">
+        <i class="fa-solid fa-flag mr-2 text-sky-400"></i>Getting Started
+      </button>
+      <button onclick="switchTab('motor'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        <i class="fa-solid fa-gear mr-2 text-warmorange-500"></i>Motor Testing
+      </button>
+      <button onclick="switchTab('imu'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        <i class="fa-solid fa-compass mr-2 text-sky-500"></i>IMU (MPU6050)
+      </button>
+      <button onclick="switchTab('obstacle'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        <i class="fa-solid fa-radar mr-2 text-navy-800"></i>Obstacle Sensor
+      </button>
+      <button onclick="switchTab('bot'); toggleMobileMenu();" class="block w-full text-left px-3 py-2 rounded-md text-sm font-semibold text-slate-700 hover:bg-slate-100">
+        <i class="fa-solid fa-robot mr-2 text-warmorange-500"></i>Troubleshooting Bot
+      </button>
+    </div>
   </header>
 
-  <nav>
-    <button class="nav-btn active" onclick="switchTab('overview')">Overview & Requirements</button>
-    <button class="nav-btn" onclick="switchTab('debugging')">Debugging Checklist</button>
-    <button class="nav-btn" onclick="switchTab('testrecord')">Student Test Record</button>
-    <button class="nav-btn" onclick="switchTab('rubric')">Grading Rubric</button>
-    <button class="nav-btn" onclick="switchTab('reflection')">Reflection Guide</button>
-  </nav>
+  <!-- Main Content Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-  <div class="container">
-    
-    <!-- OVERVIEW TAB -->
-    <div id="overview" class="tab-content active">
-      <div class="card">
-        <h2>Suggested Control Flow</h2>
-        <ol style="margin-left: 1.5rem; line-height: 1.8;">
-          <li><strong>START</strong></li>
-          <li>Initialize pins, sensors (MPU6050, Ultrasonic, Line Sensors), and motors</li>
-          <li>Read ultrasonic distance</li>
-          <li><strong>IF obstacle is too close:</strong> → Stop → Avoid obstacle → Search for line</li>
-          <li><strong>ELSE:</strong> Read line sensors
-            <ul>
-              <li><strong>IF center:</strong> Drive forward</li>
-              <li><strong>ELSE IF left:</strong> Steer left</li>
-              <li><strong>ELSE IF right:</strong> Steer right</li>
-              <li><strong>ELSE:</strong> Line lost → Slow down / Search for line</li>
+    <!-- TAB 1: GETTING STARTED -->
+    <div id="view-start" class="space-y-6">
+      
+      <div class="card-highlight rounded-2xl p-6 shadow-sm border border-warmorange-100">
+        <div class="flex items-center space-x-3 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-warmorange-500 text-white flex items-center justify-center font-bold text-sm">
+            1
+          </div>
+          <h2 class="text-xl font-bold text-slate-900">Step 1: Getting Started with Arduino</h2>
+        </div>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          Follow these basic setup procedures to verify that your Arduino microcontroller is powered up, recognized by your computer, and ready for code uploads.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Board & Port Configuration -->
+        <div class="card-white rounded-2xl p-6">
+          <div class="flex items-center space-x-2 text-navy-900 font-bold mb-3 text-base">
+            <i class="fa-solid fa-laptop-code text-sky-500"></i>
+            <h3>IDE & Hardware Setup</h3>
+          </div>
+          <ol class="list-decimal list-inside space-y-2.5 text-xs text-slate-700 leading-relaxed">
+            <li>Connect your Arduino board to your computer using a USB data cable.</li>
+            <li>Launch the <strong>Arduino IDE</strong>.</li>
+            <li>Navigate to <strong>Tools &gt; Board</strong> and select your board type (e.g., <code>Arduino Uno</code> or <code>Arduino Mega</code>).</li>
+            <li>Navigate to <strong>Tools &gt; Port</strong> and choose the corresponding active COM port (e.g., <code>COM3</code>, <code>COM4</code>, or <code>/dev/ttyACM0</code>).</li>
+            <li>Ensure the Serial Monitor baud rate is set to <strong>9600 baud</strong>.</li>
+          </ol>
+        </div>
+
+        <!-- Initial Verification Code -->
+        <div class="card-white rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center space-x-2 text-navy-900 font-bold mb-3 text-base">
+              <i class="fa-solid fa-vial text-warmorange-500"></i>
+              <h3>Basic Connection Test</h3>
+            </div>
+            <p class="text-xs text-slate-600 mb-3">
+              Upload this minimal code to verify basic upload capabilities and Serial communication.
+            </p>
+          </div>
+          <div class="bg-slate-900 rounded-xl p-3 border border-slate-800 text-xs font-mono text-slate-200 overflow-x-auto relative">
+            <button onclick="copyCode('start-code')" class="absolute top-2 right-2 text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-700 transition">
+              <i class="fa-regular fa-copy mr-1"></i>Copy
+            </button>
+            <pre id="start-code"><code>void setup() {
+  Serial.begin(9600);
+  while (!Serial) delay(10);
+  Serial.println("Arduino Setup Initialized Successfully!");
+}
+
+void loop() {
+  Serial.println("System operational...");
+  delay(1000);
+}</code></pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quick Alert Box -->
+      <div class="bg-blue-50 border-l-4 border-sky-500 p-4 rounded-xl flex items-start space-x-3">
+        <i class="fa-solid fa-circle-info text-sky-600 text-lg mt-0.5"></i>
+        <div class="text-xs text-navy-950 leading-relaxed">
+          <strong class="font-bold">Next Steps:</strong> Once basic serial upload is verified, proceed to <strong>Motor Testing</strong> to check direction logic, or access the <strong>Troubleshooting Bot</strong> if the board isn't turning on or connecting.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 2: MOTOR TESTING -->
+    <div id="view-motor" class="hidden space-y-6">
+      
+      <div class="card-highlight rounded-2xl p-6 shadow-sm border border-warmorange-100">
+        <div class="flex items-center space-x-3 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-warmorange-500 text-white flex items-center justify-center font-bold text-sm">
+            2
+          </div>
+          <h2 class="text-xl font-bold text-slate-900">Step 2: Testing Motors & Software Polarity Reversal</h2>
+        </div>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          Because hardware wiring harnesses are prebuilt, if a wheel spins in the opposite direction from what your code expects, <strong>do not disconnect wires</strong>. Swap the direction control logic directly in C code by reversing <code>HIGH</code> / <code>LOW</code> output states or negating speed values.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Code Explanation & Snippet -->
+        <div class="card-white rounded-2xl p-6 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-code text-navy-900"></i> Software Motor Direction Reversal Code
+              </h3>
+              <span class="text-xs bg-slate-100 font-mono text-slate-600 px-2.5 py-1 rounded-md border border-slate-200">C / C++</span>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed mb-3">
+              Use a boolean flag or helper functions to handle motor polarity directly in code:
+            </p>
+
+            <div class="bg-slate-900 rounded-xl p-3.5 border border-slate-800 text-xs font-mono text-slate-200 overflow-x-auto relative">
+              <button onclick="copyCode('motor-code')" class="absolute top-2 right-2 text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-700 transition">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+              <pre id="motor-code"><code>// Motor Control Pins
+const int IN1 = 5;
+const int IN2 = 6;
+const int ENA = 3;
+
+// Set true if the left wheel spins backwards
+bool reverseLeftMotor = true; 
+
+void driveLeftMotor(int speedPWM) {
+  if (!reverseLeftMotor) {
+    // Normal direction logic
+    digitalWrite(IN1, HIGH);
+    digitalWrite(IN2, LOW);
+  } else {
+    // Software polarity flip (reverses rotation)
+    digitalWrite(IN1, LOW);
+    digitalWrite(IN2, HIGH);
+  }
+  analogWrite(ENA, speedPWM);
+}
+
+void setup() {
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(ENA, OUTPUT);
+}
+
+void loop() {
+  driveLeftMotor(180); // Wheel turns forward!
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Motor Logic Simulator -->
+        <div class="card-white rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-warmorange-500"></i> Motor Direction Simulator
+              </h3>
+              <span id="motor-status-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                STOPPED
+              </span>
+            </div>
+
+            <!-- Simulated Wheel Display -->
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4 flex justify-around items-center">
+              <div class="text-center">
+                <p class="text-xs text-slate-500 font-medium mb-2">Left Wheel</p>
+                <div id="sim-wheel-left" class="w-16 h-16 rounded-full border-4 border-slate-300 flex items-center justify-center text-slate-400 transition-all">
+                  <i class="fa-solid fa-gear text-2xl"></i>
+                </div>
+                <p id="sim-wheel-left-label" class="text-xs font-mono text-slate-500 mt-2">0 RPM</p>
+              </div>
+
+              <div class="text-center">
+                <p class="text-xs text-slate-500 font-medium mb-2">Right Wheel</p>
+                <div id="sim-wheel-right" class="w-16 h-16 rounded-full border-4 border-slate-300 flex items-center justify-center text-slate-400 transition-all">
+                  <i class="fa-solid fa-gear text-2xl"></i>
+                </div>
+                <p id="sim-wheel-right-label" class="text-xs font-mono text-slate-500 mt-2">0 RPM</p>
+              </div>
+            </div>
+
+            <!-- Simulator Controls -->
+            <div class="space-y-3 text-xs">
+              <div class="flex items-center justify-between bg-slate-100 p-3 rounded-xl border border-slate-200">
+                <div>
+                  <span class="font-semibold text-slate-800">Software Polarity Flip</span>
+                  <p class="text-[11px] text-slate-500">Reverse logic in code</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" id="sim-invert-toggle" class="sr-only peer" onchange="updateMotorSim()">
+                  <div class="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-warmorange-500"></div>
+                </label>
+              </div>
+
+              <div class="grid grid-cols-3 gap-2 pt-2">
+                <div></div>
+                <button onclick="setSimState('FORWARD')" class="p-2 bg-slate-800 hover:bg-navy-900 text-white rounded-lg font-semibold transition">
+                  <i class="fa-solid fa-arrow-up"></i> Forward
+                </button>
+                <div></div>
+                <button onclick="setSimState('LEFT')" class="p-2 bg-slate-800 hover:bg-navy-900 text-white rounded-lg font-semibold transition">
+                  <i class="fa-solid fa-arrow-left"></i> Left
+                </button>
+                <button onclick="setSimState('STOP')" class="p-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition">
+                  <i class="fa-solid fa-hand"></i> Stop
+                </button>
+                <button onclick="setSimState('RIGHT')" class="p-2 bg-slate-800 hover:bg-navy-900 text-white rounded-lg font-semibold transition">
+                  <i class="fa-solid fa-arrow-right"></i> Right
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TAB 3: IMU TESTING (MPU6050) -->
+    <div id="view-imu" class="hidden space-y-6">
+      
+      <div class="card-highlight rounded-2xl p-6 shadow-sm border border-warmorange-100">
+        <div class="flex items-center space-x-3 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-warmorange-500 text-white flex items-center justify-center font-bold text-sm">
+            3
+          </div>
+          <h2 class="text-xl font-bold text-slate-900">Step 3: Testing IMU (MPU6050)</h2>
+        </div>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          Test your 6-axis MPU6050 Accelerometer and Gyroscope over I2C communication to read real-time motion and orientation data.
+        </p>
+      </div>
+
+      <!-- Exact User MPU6050 Code -->
+      <div class="card-white rounded-2xl p-6">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="font-bold text-slate-900 flex items-center gap-2 text-base">
+            <i class="fa-solid fa-code text-sky-500"></i> Arduino MPU6050 Initialization & Loop Code
+          </h3>
+          <button onclick="copyCode('imu-exact-code')" class="text-xs bg-navy-900 hover:bg-navy-800 text-white font-semibold px-3 py-1.5 rounded-lg shadow-sm transition flex items-center gap-1.5">
+            <i class="fa-regular fa-copy"></i> Copy Exact Code
+          </button>
+        </div>
+
+        <div class="bg-slate-900 rounded-xl p-4 border border-slate-800 text-xs font-mono text-slate-200 overflow-x-auto">
+          <pre id="imu-exact-code"><code>#include &lt;Adafruit_MPU6050.h&gt;
+#include &lt;Adafruit_Sensor.h&gt;
+#include &lt;Wire.h&gt;
+
+Adafruit_MPU6050 mpu;
+
+void setup() {
+  Serial.begin(9600);
+  while (!Serial) delay(10);
+
+  if (!mpu.begin()) {
+    Serial.println("Failed to find MPU6050 chip on board!");
+    while (1) { delay(10); }
+  }
+
+  Serial.println("MPU6050 IMU Initialized Successfully!");
+
+  mpu.setAccelerometerRange(MPU6050_RANGE_8_G);
+  mpu.setGyroRange(MPU6050_RANGE_500_DEG);
+  mpu.setFilterBandwidth(MPU6050_BAND_21_HZ);
+  delay(100);
+}
+
+void loop() {
+  sensors_event_t a, g, temp;
+  mpu.getEvent(&amp;a, &amp;g, &amp;temp);
+
+  Serial.print("Accel X: "); Serial.print(a.acceleration.x);
+  Serial.print(" | Y: "); Serial.print(a.acceleration.y);
+  Serial.print(" | Z: "); Serial.println(a.acceleration.z);
+
+  Serial.print(" || Gyro X: "); Serial.print(g.gyro.x);
+  Serial.print(" | Y: "); Serial.print(g.gyro.y);
+  Serial.print(" | Z: "); Serial.println(g.gyro.z);
+
+  delay(100);
+}</code></pre>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TAB 4: OBSTACLE SENSOR -->
+    <div id="view-obstacle" class="hidden space-y-6">
+      
+      <div class="card-highlight rounded-2xl p-6 shadow-sm border border-warmorange-100">
+        <div class="flex items-center space-x-3 mb-2">
+          <div class="w-8 h-8 rounded-lg bg-warmorange-500 text-white flex items-center justify-center font-bold text-sm">
+            4
+          </div>
+          <h2 class="text-xl font-bold text-slate-900">Step 4: Testing Obstacle Sensor (Ultrasonic)</h2>
+        </div>
+        <p class="text-slate-600 text-sm leading-relaxed">
+          Measure distance in centimeters using ultrasonic pulses to detect obstacles and trigger avoidance maneuvers in your code logic.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Ultrasonic Code -->
+        <div class="card-white rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-3">
+              <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-code text-navy-900"></i> Ultrasonic Distance Code
+              </h3>
+              <button onclick="copyCode('ultrasonic-exact-code')" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-md font-medium border border-slate-300 transition">
+                <i class="fa-regular fa-copy mr-1"></i>Copy
+              </button>
+            </div>
+
+            <div class="bg-slate-900 rounded-xl p-3.5 border border-slate-800 text-xs font-mono text-slate-200 overflow-x-auto">
+              <pre id="ultrasonic-exact-code"><code>const int TRIG_PIN = A1;
+const int ECHO_PIN = A2;
+const float OBSTACLE_LIMIT_CM = 15.0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(TRIG_PIN, OUTPUT);
+  pinMode(ECHO_PIN, INPUT);
+}
+
+float readDistanceCM() {
+  digitalWrite(TRIG_PIN, LOW);
+  delayMicroseconds(2);
+  digitalWrite(TRIG_PIN, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(TRIG_PIN, LOW);
+
+  long duration = pulseIn(ECHO_PIN, HIGH, 30000);
+  if (duration == 0) return 999.0;
+  return duration * 0.0343 / 2.0;
+}
+
+void loop() {
+  float dist = readDistanceCM();
+  Serial.print("Distance: ");
+  Serial.print(dist);
+  Serial.println(" cm");
+
+  if (dist < OBSTACLE_LIMIT_CM) {
+    Serial.println("WARNING: Obstacle Detected!");
+  }
+  delay(100);
+}</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Distance Calibration Simulator -->
+        <div class="card-white rounded-2xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <h3 class="font-bold text-slate-900 flex items-center gap-2">
+                <i class="fa-solid fa-radar text-sky-500"></i> Distance Calibration Simulator
+              </h3>
+              <span id="obstacle-sim-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-sky-700 border border-sky-300">
+                CLEAR
+              </span>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4">
+              <div class="flex justify-between text-xs text-slate-700 font-semibold mb-2">
+                <span>Simulated Obstacle Distance:</span>
+                <span id="obstacle-dist-val" class="font-mono text-sky-600">40 cm</span>
+              </div>
+              <input type="range" id="obstacle-range" min="2" max="150" value="40" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-sky-500" oninput="updateObstacleSim(this.value)">
+
+              <div class="mt-4 relative h-6 bg-slate-200 rounded-full overflow-hidden border border-slate-300">
+                <div id="obstacle-bar" class="h-full bg-sky-500 transition-all duration-150" style="width: 26%;"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-slate-700">
+                  Threshold: 15 cm
+                </span>
+              </div>
+            </div>
+
+            <p class="text-xs text-slate-500 leading-relaxed">
+              Drag the slider to test threshold triggering in software. If distance drops below 15cm, an obstacle detection flag is set.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TAB 5: TROUBLESHOOTING CHATBOT TAB -->
+    <div id="view-bot" class="hidden h-[calc(100vh-160px)] flex flex-col card-white rounded-2xl shadow-lg overflow-hidden border border-slate-200">
+      
+      <!-- Bot Header -->
+      <div class="p-4 bg-navy-900 text-white flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-sky-400 font-bold">
+            <i class="fa-solid fa-robot text-lg"></i>
+          </div>
+          <div>
+            <h2 class="font-bold text-sm leading-tight">Hardware Diagnostics & Troubleshooting Assistant</h2>
+            <p class="text-xs text-sky-200">Instant help for power, battery, motors, and sensors</p>
+          </div>
+        </div>
+        <span class="text-[10px] bg-sky-500/20 text-sky-200 border border-sky-400/30 px-2 py-1 rounded-md font-mono">
+          Online
+        </span>
+      </div>
+
+      <!-- Chat Output Messages -->
+      <div id="tab-chat-window" class="flex-grow p-4 overflow-y-auto space-y-4 bg-slate-50 text-sm">
+        <div class="flex items-start space-x-3">
+          <div class="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs shrink-0 mt-1 shadow-sm">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 max-w-[85%] text-slate-800 shadow-sm text-xs leading-relaxed">
+            Hello! I am your Project Diagnostic Bot. Select a topic below or type your question:
+            <ul class="list-disc list-inside mt-2 space-y-1 text-slate-600">
+              <li><strong>Power Issues:</strong> Robot won't turn on, battery uncharged/low voltage symptoms.</li>
+              <li><strong>Motor Reversing:</strong> Software polarity fixes for prebuilt wiring.</li>
+              <li><strong>Sensor Errors:</strong> MPU6050 missing chip or ultrasonic distance read failures.</li>
+              <li><strong>Arduino IDE:</strong> Port detection and sketch upload errors.</li>
             </ul>
-          </li>
-          <li>Repeat Loop</li>
-        </ol>
+          </div>
+        </div>
       </div>
 
-      <div class="card">
-        <h2>Final Project Requirements</h2>
-        <ul class="checklist">
-          <li><input type="checkbox"> Uses Arduino UNO and Arduino IDE (C Language).</li>
-          <li><input type="checkbox"> Program organized into clear, manageable functions.</li>
-          <li><input type="checkbox"> Robot moves forward, stops, and turns independently.</li>
-          <li><input type="checkbox"> Follows a line using 3 line sensors.</li>
-          <li><input type="checkbox"> Measures distance using the ultrasonic sensor.</li>
-          <li><input type="checkbox"> Performs obstacle avoidance maneuver when triggered.</li>
-          <li><input type="checkbox"> Searches for, reacquires, and resumes line tracking.</li>
-          <li><input type="checkbox"> Group can explain all main if / else if / else decisions.</li>
-        </ul>
+      <!-- Quick Option Chips -->
+      <div class="px-4 py-2.5 bg-white border-t border-slate-200 flex gap-2 overflow-x-auto text-xs whitespace-nowrap">
+        <button onclick="askBotTab('Robot does not turn on')" class="px-3 py-1.5 bg-slate-100 hover:bg-warmorange-100 text-slate-700 hover:text-warmorange-600 border border-slate-200 rounded-lg transition font-medium">
+          🔴 Robot won't turn on
+        </button>
+        <button onclick="askBotTab('Battery / Power issues')" class="px-3 py-1.5 bg-slate-100 hover:bg-warmorange-100 text-slate-700 hover:text-warmorange-600 border border-slate-200 rounded-lg transition font-medium">
+          🔋 Battery / Power issues
+        </button>
+        <button onclick="askBotTab('Reverse motor direction')" class="px-3 py-1.5 bg-slate-100 hover:bg-sky-50 text-slate-700 hover:text-navy-900 border border-slate-200 rounded-lg transition font-medium">
+          🔄 Reverse motor direction
+        </button>
+        <button onclick="askBotTab('IMU sensor error')" class="px-3 py-1.5 bg-slate-100 hover:bg-sky-50 text-slate-700 hover:text-navy-900 border border-slate-200 rounded-lg transition font-medium">
+          🧭 IMU sensor error
+        </button>
+        <button onclick="askBotTab('Where do I start?')" class="px-3 py-1.5 bg-slate-100 hover:bg-sky-50 text-slate-700 hover:text-navy-900 border border-slate-200 rounded-lg transition font-medium">
+          🚀 Where do I start?
+        </button>
       </div>
+
+      <!-- Input Area -->
+      <form onsubmit="handleTabChatSubmit(event)" class="p-3 bg-white border-t border-slate-200 flex gap-2">
+        <input type="text" id="tab-chat-input" placeholder="Type a question regarding power, code, or sensors..." class="flex-grow bg-slate-50 text-slate-800 text-sm px-4 py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-navy-900 transition">
+        <button type="submit" class="bg-navy-900 hover:bg-navy-800 text-white font-bold px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-sm text-xs">
+          <span>Send</span>
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
+
     </div>
 
-    <!-- DEBUGGING TAB -->
-    <div id="debugging" class="tab-content">
-      <div class="card">
-        <h2>13. Debugging Checklist</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Symptom</th>
-              <th>Likely Check</th>
-              <th>Student Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Robot does not move</strong></td>
-              <td>STBY pin, motor pins, power supply</td>
-              <td>Check wiring and run basic motor test code.</td>
-            </tr>
-            <tr>
-              <td><strong>One wheel in wrong direction</strong></td>
-              <td>DIR logic / motor orientation</td>
-              <td>Reverse direction in software or switch motor wiring polarity.</td>
-            </tr>
-            <tr>
-              <td><strong>Robot curves when going straight</strong></td>
-              <td>Different motor speeds</td>
-              <td>Tune left/right PWM values in software.</td>
-            </tr>
-            <tr>
-              <td><strong>Line following is reversed</strong></td>
-              <td>Sensor polarity</td>
-              <td>Check HIGH/LOW logic conditions in line detection functions.</td>
-            </tr>
-            <tr>
-              <td><strong>Robot never detects obstacle</strong></td>
-              <td>TRIG/ECHO pins or wiring</td>
-              <td>Run individual ultrasonic sensor test and monitor output on Serial Monitor.</td>
-            </tr>
-            <tr>
-              <td><strong>Robot stops too early/late</strong></td>
-              <td>Threshold value</td>
-              <td>Tune <code>OBSTACLE_DISTANCE</code> value in code.</td>
-            </tr>
-            <tr>
-              <td><strong>Line lost after avoidance</strong></td>
-              <td>Turn/Forward timing</td>
-              <td>Tune turn duration, forward time, and search speed.</td>
-            </tr>
-            <tr>
-              <td><strong>Program will not upload</strong></td>
-              <td>Board / Port / Cable</td>
-              <td>Verify Board type, select correct COM port, and verify USB cable connection.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+  </main>
 
-    <!-- TEST RECORD TAB -->
-    <div id="testrecord" class="tab-content">
-      <div class="card">
-        <h2>14. Student Test Record Sheet</h2>
-        <p style="margin-bottom: 1rem; color: var(--text-muted);">Fill out this record during testing. Your entries auto-save in your browser!</p>
-        <table id="testTable">
-          <thead>
-            <tr>
-              <th>Test Parameter</th>
-              <th>What I Changed</th>
-              <th>Result</th>
-              <th>Final Value</th>
-              <th>Done</th>
-            </tr>
-          </thead>
-          <tbody>
-            <!-- Dynamic / Editable Rows -->
-            <script>
-              const tests = [
-                "Motor speed", "Straight drive tuning", "Line sensor polarity",
-                "Line-following speed", "Turn strength", "Obstacle distance threshold",
-                "Avoidance turn time", "Avoidance forward time", "Line search speed"
-              ];
-              tests.forEach((test, idx) => {
-                document.write(`
-                  <tr>
-                    <td><strong>${test}</strong></td>
-                    <td><input type="text" id="changed_${idx}" onchange="saveTable()"></td>
-                    <td><input type="text" id="result_${idx}" onchange="saveTable()"></td>
-                    <td><input type="text" id="final_${idx}" onchange="saveTable()"></td>
-                    <td style="text-align: center;"><input type="checkbox" id="check_${idx}" onchange="saveTable()"></td>
-                  </tr>
-                `);
-              });
-            </script>
-          </tbody>
-        </table>
-        <button class="btn" style="margin-top: 1rem;" onclick="clearTable()">Clear Saved Data</button>
-      </div>
-    </div>
+  <!-- FLOATING CHATBOT WIDGET -->
+  <div id="floating-chat-container" class="fixed bottom-5 right-5 z-50">
+    
+    <!-- Floating Toggle Button -->
+    <button id="floating-chat-btn" onclick="toggleFloatingChat()" class="w-14 h-14 bg-navy-900 hover:bg-navy-800 text-white rounded-full flex items-center justify-center shadow-xl border-2 border-white transition-all transform hover:scale-105">
+      <i id="chat-icon-open" class="fa-solid fa-comments text-xl"></i>
+      <i id="chat-icon-close" class="fa-solid fa-xmark text-xl hidden"></i>
+    </button>
 
-    <!-- RUBRIC TAB -->
-    <div id="rubric" class="tab-content">
-      <div class="card">
-        <h2>16. Project Grading Rubric (20% Total)</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Category</th>
-              <th>Points</th>
-              <th>What Earns Points</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Arduino IDE / Setup</td><td>5</td><td>Program compiles & uploads cleanly; correct board configuration.</td></tr>
-            <tr><td>Motor Control</td><td>10</td><td>Independent wheel control (forward, reverse, stop, turns).</td></tr>
-            <tr><td>Straight Movement</td><td>5</td><td>Drives reasonably straight after PWM speed balancing.</td></tr>
-            <tr><td>Line Sensor Testing</td><td>8</td><td>Correctly reads and displays L/M/R state logic on Serial.</td></tr>
-            <tr><td>Line Following</td><td>15</td><td>Uses reliable, structured if/else decision logic.</td></tr>
-            <tr><td>Ultrasonic Reading</td><td>8</td><td>Accurate distance measurement verified via Serial output.</td></tr>
-            <tr><td>Obstacle Detection</td><td>8</td><td>Stops/alters behavior cleanly at the preset threshold.</td></tr>
-            <tr><td>Obstacle Avoidance</td><td>12</td><td>Executes complete turn-forward-turn avoidance maneuver.</td></tr>
-            <tr><td>Line Reacquisition</td><td>6</td><td>Successfully locates the line again and resumes tracking.</td></tr>
-            <tr><td>Code Readability</td><td>8</td><td>Modular code using functions, constants, and comments.</td></tr>
-            <tr><td>Testing Evidence</td><td>5</td><td>Documented test records and debug sheet.</td></tr>
-            <tr><td>Presentation (PPT)</td><td>7</td><td>Clear slide presentation, equal participation, and Q&A.</td></tr>
-            <tr><td>Optional Extension</td><td>3</td><td>Advanced features / additional functions.</td></tr>
-          </tbody>
-        </table>
+    <!-- Floating Chat Popup Window -->
+    <div id="floating-chat-window" class="hidden absolute bottom-16 right-0 w-[90vw] sm:w-[380px] h-[500px] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden">
+      <!-- Header -->
+      <div class="p-3.5 bg-navy-900 text-white flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-robot text-sky-400"></i>
+          <span class="font-bold text-xs">Diagnostic Assistant</span>
+        </div>
+        <button onclick="toggleFloatingChat()" class="text-slate-300 hover:text-white text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
       </div>
-    </div>
 
-    <!-- REFLECTION TAB -->
-    <div id="reflection" class="tab-content">
-      <div class="card">
-        <h2>22. Final Reflection Questions Guide</h2>
-        <p style="margin-bottom: 1rem;">Use these prompt guides when preparing your team's written report:</p>
-        <ol style="line-height: 2; padding-left: 1.2rem;">
-          <li><strong>Hardest Part:</strong> Mention specific challenges (e.g., balancing PWM for straight driving, tuning ultrasonic reflection timing).</li>
-          <li><strong>Most Important Sensor:</strong> Explain why (e.g., Line sensors for primary navigation vs. Ultrasonic for safety/obstacle handling).</li>
-          <li><strong>Motor Speeds:</strong> Document your left vs. right PWM values (e.g., Left: 180, Right: 200).</li>
-          <li><strong>Obstacle Threshold:</strong> State your threshold in cm (e.g., 15 cm).</li>
-          <li><strong>Line Reacquisition Strategy:</strong> Explain your search routine (e.g., pivot turning until middle sensor reads dark).</li>
-          <li><strong>Debugging Example:</strong> Provide a concrete issue faced (e.g., false ultrasonic readings fixed by adding micro-delays).</li>
-        </ol>
+      <!-- Messages Window -->
+      <div id="widget-chat-messages" class="flex-grow p-3 overflow-y-auto space-y-3 bg-slate-50 text-xs">
+        <div class="bg-white border border-slate-200 rounded-xl p-3 text-slate-700 shadow-sm">
+          Hi! Ask me anything about power issues, dead batteries, motor reversing, or sensor diagnostics!
+        </div>
       </div>
+
+      <!-- Input Area -->
+      <form onsubmit="handleWidgetChatSubmit(event)" class="p-2 bg-white border-t border-slate-200 flex gap-1.5">
+        <input type="text" id="widget-chat-input" placeholder="Ask a question..." class="flex-grow bg-slate-100 text-slate-800 text-xs px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:border-navy-900">
+        <button type="submit" class="bg-navy-900 text-white px-3 py-2 rounded-lg text-xs font-semibold">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </form>
     </div>
 
   </div>
 
-  <!-- CHATBOT WIDGET -->
-  <button id="chat-toggle-btn" onclick="toggleChat()">💬 Project Assistant</button>
-
-  <div id="chat-widget" class="collapsed">
-    <div class="chat-header">
-      <span>MCE226L/ISM216L Assistant</span>
-      <button onclick="toggleChat()">✕</button>
-    </div>
-    <div class="chat-messages" id="chatMessages">
-      <div class="msg bot">
-        Hello! I'm your lab assistant for the MCE226L / ISM216L project. Ask me anything about where to start, hardware debugging, or writing your control logic!
-      </div>
-    </div>
-    <div class="chat-quick-queries">
-      <button class="quick-chip" onclick="askQuick('Where do I start?')">Where do I start?</button>
-      <button class="quick-chip" onclick="askQuick('My Arduino is not connecting!')">Arduino not connecting</button>
-      <button class="quick-chip" onclick="askQuick('Robot curves while going straight')">Robot curves</button>
-      <button class="quick-chip" onclick="askQuick('How do I write the main logic?')">Control Logic Help</button>
-    </div>
-    <div class="chat-input-area">
-      <input type="text" id="chatInput" placeholder="Ask a question..." onkeypress="handleKeyPress(event)">
-      <button class="btn" onclick="sendMessage()">Send</button>
-    </div>
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-4 left-4 bg-navy-900 text-white font-semibold px-4 py-2.5 rounded-xl shadow-xl transform translate-y-20 opacity-0 transition-all duration-300 flex items-center gap-2 z-50 text-xs border border-sky-400">
+    <i class="fa-solid fa-circle-check text-sky-400"></i>
+    <span id="toast-msg">Copied!</span>
   </div>
 
   <script>
-    // Tab Switching
+    // Tab switching logic
     function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-      
-      document.getElementById(tabId).classList.add('active');
-      event.currentTarget.classList.add('active');
-    }
+      document.getElementById('view-start').classList.add('hidden');
+      document.getElementById('view-motor').classList.add('hidden');
+      document.getElementById('view-imu').classList.add('hidden');
+      document.getElementById('view-obstacle').classList.add('hidden');
+      document.getElementById('view-bot').classList.add('hidden');
 
-    // Local Storage for Test Sheet
-    function saveTable() {
-      for (let i = 0; i < 9; i++) {
-        localStorage.setItem(`changed_${i}`, document.getElementById(`changed_${i}`).value);
-        localStorage.setItem(`result_${i}`, document.getElementById(`result_${i}`).value);
-        localStorage.setItem(`final_${i}`, document.getElementById(`final_${i}`).value);
-        localStorage.setItem(`check_${i}`, document.getElementById(`check_${i}`).checked);
+      const tabs = ['start', 'motor', 'imu', 'obstacle', 'bot'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (btn) {
+          btn.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-lg text-slate-600 hover:text-navy-900 hover:bg-white transition-all';
+        }
+      });
+
+      document.getElementById(`view-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tabId}`);
+      if (activeBtn) {
+        activeBtn.className = 'px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-navy-900 text-white shadow-sm transition-all';
       }
     }
 
-    function loadTable() {
-      for (let i = 0; i < 9; i++) {
-        if(localStorage.getItem(`changed_${i}`)) document.getElementById(`changed_${i}`).value = localStorage.getItem(`changed_${i}`);
-        if(localStorage.getItem(`result_${i}`)) document.getElementById(`result_${i}`).value = localStorage.getItem(`result_${i}`);
-        if(localStorage.getItem(`final_${i}`)) document.getElementById(`final_${i}`).value = localStorage.getItem(`final_${i}`);
-        if(localStorage.getItem(`check_${i}`)) document.getElementById(`check_${i}`).checked = localStorage.getItem(`check_${i}`) === 'true';
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('hidden');
+    }
+
+    document.getElementById('mobile-menu-btn').addEventListener('click', toggleMobileMenu);
+
+    // Copy to clipboard helper
+    function copyCode(elementId) {
+      const codeText = document.getElementById(elementId).innerText;
+      const textArea = document.createElement('textarea');
+      textArea.value = codeText;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      showToast('Code copied to clipboard!');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    // Motor Simulator Logic
+    let currentSimState = 'STOP';
+
+    function setSimState(state) {
+      currentSimState = state;
+      updateMotorSim();
+    }
+
+    function updateMotorSim() {
+      const isInverted = document.getElementById('sim-invert-toggle').checked;
+      const leftWheel = document.getElementById('sim-wheel-left');
+      const rightWheel = document.getElementById('sim-wheel-right');
+      const leftLabel = document.getElementById('sim-wheel-left-label');
+      const rightLabel = document.getElementById('sim-wheel-right-label');
+      const badge = document.getElementById('motor-status-badge');
+
+      if (currentSimState === 'STOP') {
+        leftWheel.className = 'w-16 h-16 rounded-full border-4 border-slate-300 flex items-center justify-center text-slate-400';
+        rightWheel.className = 'w-16 h-16 rounded-full border-4 border-slate-300 flex items-center justify-center text-slate-400';
+        leftLabel.innerText = '0 RPM';
+        rightLabel.innerText = '0 RPM';
+        badge.innerText = 'STOPPED';
+        badge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600';
+        return;
+      }
+
+      badge.innerText = `STATE: ${currentSimState}`;
+      badge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-orange-100 text-warmorange-600 border border-warmorange-300';
+
+      let leftFwd = false;
+      let rightFwd = false;
+
+      if (currentSimState === 'FORWARD') { leftFwd = true; rightFwd = true; }
+      else if (currentSimState === 'LEFT') { leftFwd = false; rightFwd = true; }
+      else if (currentSimState === 'RIGHT') { leftFwd = true; rightFwd = false; }
+
+      if (isInverted) {
+        leftFwd = !leftFwd;
+        rightFwd = !rightFwd;
+      }
+
+      leftWheel.className = 'w-16 h-16 rounded-full border-4 border-sky-500 flex items-center justify-center text-sky-600 animate-spin';
+      rightWheel.className = 'w-16 h-16 rounded-full border-4 border-sky-500 flex items-center justify-center text-sky-600 animate-spin';
+
+      leftLabel.innerText = leftFwd ? '+180 RPM' : '-180 RPM';
+      rightLabel.innerText = rightFwd ? '+180 RPM' : '-180 RPM';
+    }
+
+    // Obstacle Simulator Logic
+    function updateObstacleSim(val) {
+      document.getElementById('obstacle-dist-val').innerText = `${val} cm`;
+      const percentage = Math.min(100, (val / 150) * 100);
+      const bar = document.getElementById('obstacle-bar');
+      const badge = document.getElementById('obstacle-sim-badge');
+
+      bar.style.width = `${percentage}%`;
+
+      if (val < 15) {
+        bar.className = 'h-full bg-red-500 transition-all duration-150';
+        badge.innerText = 'OBSTACLE DETECTED';
+        badge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-red-100 text-red-700 border border-red-300 animate-pulse';
+      } else {
+        bar.className = 'h-full bg-sky-500 transition-all duration-150';
+        badge.innerText = 'PATH CLEAR';
+        badge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-blue-100 text-sky-700 border border-sky-300';
       }
     }
 
-    function clearTable() {
-      if(confirm("Are you sure you want to clear your saved test results?")) {
-        localStorage.clear();
-        location.reload();
+    // Floating Widget Toggle
+    function toggleFloatingChat() {
+      const win = document.getElementById('floating-chat-window');
+      const iconOpen = document.getElementById('chat-icon-open');
+      const iconClose = document.getElementById('chat-icon-close');
+
+      win.classList.toggle('hidden');
+      iconOpen.classList.toggle('hidden');
+      iconClose.classList.toggle('hidden');
+    }
+
+    // Chatbot Knowledge Engine
+    function queryKnowledgeBase(query) {
+      const q = query.toLowerCase();
+
+      if (q.includes("turn on") || q.includes("won't turn on") || q.includes("power") || q.includes("dead")) {
+        return `
+          <strong>Robot Does Not Turn On Checklist:</strong><br>
+          1. <strong>Power Switch:</strong> Ensure the main battery expansion board switch is flipped ON.<br>
+          2. <strong>Battery Seating:</strong> Verify 18650/Li-Ion/AA battery polarity (+ and - orientation).<br>
+          3. <strong>Fuse/Wiring Check:</strong> Inspect the power leads connecting the battery shield to the Arduino VIN / 5V terminal.<br>
+          4. <strong>Charge Test:</strong> Connect the battery charger or test total voltage using a multimeter (must be &gt; 6.5V for VIN).
+        `;
       }
+
+      if (q.includes("battery") || q.includes("charge") || q.includes("low battery") || q.includes("twitch") || q.includes("reset")) {
+        return `
+          <strong>Low Battery & Charging Symptoms:</strong><br>
+          • <strong>Symptoms:</strong> Arduino resets repeatedly when motors start, motors twitch without turning, or sensor values glitch.<br>
+          • <strong>Cause:</strong> Motor startup current drops system voltage below the microcontroller's brownout limit.<br>
+          • <strong>Solution:</strong> Fully charge the battery pack. When using a multimeter, individual 18650 cells should read ~4.2V fully charged (never let them drop below 3.2V).
+        `;
+      }
+
+      if (q.includes("reverse") || q.includes("direction") || q.includes("flip") || q.includes("wrong way")) {
+        return `
+          <strong>Reversing Motor Polarity in Software:</strong><br>
+          Since wiring is prebuilt, modify direction in C code:<br>
+          <code>// Swap HIGH and LOW on motor pins</code><br>
+          <code>digitalWrite(IN1, LOW);</code><br>
+          <code>digitalWrite(IN2, HIGH);</code><br>
+          Or invert the motor PWM values in your motor driver function.
+        `;
+      }
+
+      if (q.includes("mpu6050") || q.includes("imu") || q.includes("failed to find") || q.includes("chip")) {
+        return `
+          <strong>"Failed to find MPU6050 chip" Solutions:</strong><br>
+          1. <strong>I2C Wiring:</strong> Verify SDA is connected to pin A4 and SCL to pin A5 (on Uno) and VCC has 5V/3.3V.<br>
+          2. <strong>Address Verification:</strong> Ensure default I2C address is <code>0x68</code>. If AD0 pin is pulled HIGH, address changes to <code>0x69</code>.<br>
+          3. <strong>Libraries:</strong> Ensure both <code>Adafruit_MPU6050</code> and <code>Adafruit_Sensor</code> are installed.
+        `;
+      }
+
+      if (q.includes("ultrasonic") || q.includes("obstacle") || q.includes("trig") || q.includes("echo") || q.includes("distance")) {
+        return `
+          <strong>Ultrasonic Sensor Troubleshooting:</strong><br>
+          • <strong>Zero / 999 Reading:</strong> Verify <code>TRIG_PIN</code> and <code>ECHO_PIN</code> assignments match your physical wiring.<br>
+          • <strong>Timeout:</strong> Set <code>pulseIn(ECHO_PIN, HIGH, 30000);</code> to prevent blocking if sound pulse misses the target.<br>
+          • <strong>Threshold:</strong> Set safety distance around 15 cm.
+        `;
+      }
+
+      if (q.includes("start") || q.includes("where do i start")) {
+        return `
+          <strong>Getting Started Steps:</strong><br>
+          1. Plug Arduino into computer via USB cable.<br>
+          2. Select board type & COM port under <i>Tools</i> menu.<br>
+          3. Test upload capabilities with a basic Serial print sketch.<br>
+          4. Test individual hardware components (Motors, IMU MPU6050, Ultrasonic).
+        `;
+      }
+
+      return `
+        I can help with power issues, dead batteries, software motor direction flips, MPU6050 IMU errors, and ultrasonic calibration. Try asking:
+        <br>• <i>"Why won't my robot turn on?"</i>
+        <br>• <i>"How do I fix low battery motor twitching?"</i>
+        <br>• <i>"How do I reverse motor direction in code?"</i>
+      `;
     }
 
-    window.onload = loadTable;
-
-    // Chatbot Logic
-    function toggleChat() {
-      const widget = document.getElementById('chat-widget');
-      widget.classList.toggle('collapsed');
+    // Tab Chat Submit
+    function askBotTab(question) {
+      document.getElementById('tab-chat-input').value = question;
+      handleTabChatSubmit(new Event('submit'));
     }
 
-    function handleKeyPress(e) {
-      if (e.key === 'Enter') sendMessage();
+    function handleTabChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('tab-chat-input');
+      const query = input.value.trim();
+      if (!query) return;
+
+      const win = document.getElementById('tab-chat-window');
+
+      // User Message
+      const userDiv = document.createElement('div');
+      userDiv.className = 'flex items-start justify-end space-x-2';
+      userDiv.innerHTML = `
+        <div class="bg-navy-900 text-white rounded-2xl p-3 max-w-[85%] text-xs shadow-sm">
+          ${escapeHTML(query)}
+        </div>
+      `;
+      win.appendChild(userDiv);
+      input.value = '';
+
+      // Bot Response
+      setTimeout(() => {
+        const reply = queryKnowledgeBase(query);
+        const botDiv = document.createElement('div');
+        botDiv.className = 'flex items-start space-x-3';
+        botDiv.innerHTML = `
+          <div class="w-8 h-8 rounded-full bg-navy-900 text-white flex items-center justify-center text-xs shrink-0 mt-1 shadow-sm">
+            <i class="fa-solid fa-robot"></i>
+          </div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 max-w-[85%] text-slate-800 shadow-sm text-xs leading-relaxed">
+            ${reply}
+          </div>
+        `;
+        win.appendChild(botDiv);
+        win.scrollTop = win.scrollHeight;
+      }, 350);
     }
 
-    function askQuick(text) {
-      document.getElementById('chatInput').value = text;
-      sendMessage();
-    }
+    // Widget Chat Submit
+    function handleWidgetChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('widget-chat-input');
+      const query = input.value.trim();
+      if (!query) return;
 
-    function sendMessage() {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text) return;
+      const win = document.getElementById('widget-chat-messages');
 
-      appendMessage(text, 'user');
+      const userDiv = document.createElement('div');
+      userDiv.className = 'text-right';
+      userDiv.innerHTML = `<span class="inline-block bg-navy-900 text-white px-3 py-1.5 rounded-xl text-xs">${escapeHTML(query)}</span>`;
+      win.appendChild(userDiv);
       input.value = '';
 
       setTimeout(() => {
-        const response = getBotResponse(text);
-        appendMessage(response, 'bot');
-      }, 400);
+        const reply = queryKnowledgeBase(query);
+        const botDiv = document.createElement('div');
+        botDiv.className = 'bg-white border border-slate-200 rounded-xl p-3 text-slate-800 text-xs shadow-sm';
+        botDiv.innerHTML = reply;
+        win.appendChild(botDiv);
+        win.scrollTop = win.scrollHeight;
+      }, 350);
     }
 
-    function appendMessage(text, sender) {
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('msg', sender);
-      msgDiv.innerHTML = text;
-      const container = document.getElementById('chatMessages');
-      container.appendChild(msgDiv);
-      container.scrollTop = container.scrollHeight;
-    }
-
-    function getBotResponse(query) {
-      const q = query.toLowerCase();
-
-      if (q.includes("where do i start") || q.includes("start")) {
-        return "<strong>Step-by-step starting guide:</strong><br>1. Test components individually (Motor code, Line Sensor Serial read, Ultrasonic reading).<br>2. Build basic movement functions: <code>forward()</code>, <code>turnLeft()</code>, <code>turnRight()</code>, <code>stopMotors()</code>.<br>3. Implement simple line-following loop logic.<br>4. Integrate ultrasonic distance measurement inside loop.<br>5. Combine with obstacle avoidance maneuvers!";
-      }
-      if (q.includes("not connecting") || q.includes("com port") || q.includes("port") || q.includes("upload")) {
-        return "<strong>Arduino connection troubleshooting:</strong><br>• Verify the USB cable supports data (some are charging-only).<br>• Go to <i>Tools > Board</i> and ensure 'Arduino Uno' is selected.<br>• Go to <i>Tools > Port</i> and choose the correct COM port.<br>• If using external motor shield/power, ensure ground (GND) is shared with the Arduino.";
-      }
-      if (q.includes("curve") || q.includes("straight")) {
-        return "<strong>Fixing curved driving:</strong><br>Motors rarely turn at identical speeds with identical PWM. Tune PWM values independently! For example:<br><code>analogWrite(LEFT_PWM, 200);</code><br><code>analogWrite(RIGHT_PWM, 185);</code>";
-      }
-      if (q.includes("obstacle") || q.includes("ultrasonic") || q.includes("distance")) {
-        return "<strong>Ultrasonic sensor guidance:</strong><br>• Ensure TRIG and ECHO pins are defined accurately.<br>• If readings return 0 or unstable values, check wiring and add a tiny delay between reads (e.g. <code>delay(50);</code>).<br>• Set threshold distance around 10-15 cm for reliable detection.";
-      }
-      if (q.includes("logic") || q.includes("if")) {
-        return "<strong>Main Control Flow:</strong><br><code>if (distance &lt; OBSTACLE_LIMIT) { avoid(); }</code><br><code>else if (centerLine) { forward(); }</code><br><code>else if (leftLine) { steerLeft(); }</code><br><code>else if (rightLine) { steerRight(); }</code><br><code>else { searchLine(); }</code>";
-      }
-
-      return "I can help with hardware setup, debugging code, line sensor polarity, ultrasonic wiring, or submission guidelines. Try asking: <i>'My robot curves'</i>, <i>'Arduino not connecting'</i>, or <i>'Where do I start?'</i>.";
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, 
+        tag => ({
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          "'": '&#39;',
+          '"': '&quot;'
+        }[tag] || tag)
+      );
     }
   </script>
 </body>
