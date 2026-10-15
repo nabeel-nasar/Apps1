@@ -497,7 +497,55 @@ void loop() {
             </div>
 
             <div class="bg-slate-900 rounded-xl p-3.5 border border-slate-800 text-xs font-mono text-slate-200 overflow-x-auto">
-              <pre id="ultrasonic-exact-code"><code>const int TRIG_PIN = A1;
+              <pre id="ultrasonic-exact-code"><code>
+  // Complete obstacle threshold test
+#define TRIG_PIN 13
+#define ECHO_PIN 12
+#define MAX_DISTANCE 200
+#define OBSTACLE_DISTANCE 18
+long getDistance()
+{
+digitalWrite(TRIG_PIN, LOW);
+delayMicroseconds(2);
+digitalWrite(TRIG_PIN, HIGH);
+delayMicroseconds(10);
+digitalWrite(TRIG_PIN, LOW);
+long duration = pulseIn(ECHO_PIN, HIGH, 25000);
+if (duration == 0)
+{
+return MAX_DISTANCE;
+}
+long distance = duration / 58;
+if (distance > MAX_DISTANCE)
+{
+distance = MAX_DISTANCE;
+}
+return distance;
+}
+void setup()
+{
+Serial.begin(9600);
+pinMode(TRIG_PIN, OUTPUT);
+pinMode(ECHO_PIN, INPUT);
+}
+void loop()
+{
+long distance = getDistance();
+if (distance < OBSTACLE_DISTANCE)
+{
+Serial.println("OBSTACLE - STOP");
+}
+else
+{
+Serial.println("CLEAR - MOVE");
+}
+Serial.print("Distance: ");
+Serial.print(distance);
+Serial.println(" cm");
+delay(100);
+}              
+                
+                const int TRIG_PIN = A1;
 const int ECHO_PIN = A2;
 const float OBSTACLE_LIMIT_CM = 15.0;
 
@@ -529,7 +577,11 @@ void loop() {
     Serial.println("WARNING: Obstacle Detected!");
   }
   delay(100);
-}</code></pre>
+}
+              
+              
+              
+              </code></pre>
             </div>
           </div>
         </div>
