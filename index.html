@@ -254,54 +254,92 @@ void loop() {
               <button onclick="copyCode('motor-code')" class="absolute top-2 right-2 text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-700 transition">
                 <i class="fa-regular fa-copy mr-1"></i>Copy
               </button>
-              <pre id="motor-code"><code>// Left Motor Pins
-const int IN1 = 5;  // Left motor direction 1
-const int IN2 = 6;  // Left motor direction 2
-const int ENA = 3;  // Left motor speed PWM
+              <pre id="motor-code"><code>
+                
+// This program should make the robot move.
+// Lift the robot first so the wheels are off the table.
+#define RIGHT_PWM 5
+#define LEFT_PWM 6
+#define RIGHT_DIR 7
+#define LEFT_DIR 8
+#define MOTOR_STBY 3
+void motorLeft(int speed)
+{
+speed = constrain(speed, -255, 255);
 
-// Right Motor Pins
-const int IN3 = 7;  // Right motor direction 1
-const int IN4 = 8;  // Right motor direction 2
-const int ENB = 11; // Right motor speed PWM
-
-// Motor Driver Enable/Standby Pin
-const int STBY = 3; 
-
-void driveBothMotors(int leftSpeed, int rightSpeed) {
-  if (leftSpeed >= 0) {
-    digitalWrite(IN1, HIGH);
-    digitalWrite(IN2, LOW);
-  } else {
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, HIGH);
-    leftSpeed = -leftSpeed;
-  }
-  analogWrite(ENA, leftSpeed);
-
-  if (rightSpeed >= 0) {
-    digitalWrite(IN3, HIGH);
-    digitalWrite(IN4, LOW);
-  } else {
-    digitalWrite(IN3, LOW);
-    digitalWrite(IN4, HIGH);
-    rightSpeed = -rightSpeed;
-  }
-  analogWrite(ENB, rightSpeed);
+if (speed >= 0)
+{
+digitalWrite(LEFT_DIR, HIGH);
+analogWrite(LEFT_PWM, speed);
+}
+else
+{
+digitalWrite(LEFT_DIR, LOW);
+analogWrite(LEFT_PWM, -speed);
+}
+}
+void motorRight(int speed)
+{
+speed = constrain(speed, -255, 255);
+if (speed >= 0)
+{
+digitalWrite(RIGHT_DIR, HIGH);
+analogWrite(RIGHT_PWM, speed);
+}
+else
+{
+digitalWrite(RIGHT_DIR, LOW);
+analogWrite(RIGHT_PWM, -speed);
+}
+}
+void drive(int leftSpeed, int rightSpeed)
+{
+motorLeft(leftSpeed);
+motorRight(rightSpeed);
+}
+void stopMotors()
+{
+analogWrite(LEFT_PWM, 0);
+analogWrite(RIGHT_PWM, 0);
+}
+void setup()
+{
+pinMode(RIGHT_PWM, OUTPUT);
+pinMode(LEFT_PWM, OUTPUT);
+pinMode(RIGHT_DIR, OUTPUT);
+pinMode(LEFT_DIR, OUTPUT);
+pinMode(MOTOR_STBY, OUTPUT);
+// Enable the TB6612 motor driver
+digitalWrite(MOTOR_STBY, HIGH);
+stopMotors();
+}
+void loop()
+{
+// TEST 1: Both sides forward
+drive(100, 100);
+delay(2000);
+stopMotors();
+delay(1000);
+// TEST 2: Both sides reverse
+drive(-100, -100);
+delay(2000);
+stopMotors();
+delay(1000);
+// TEST 3: Turn left
+drive(-100, 100);
+delay(1000);
+stopMotors();
+delay(1000);
+// TEST 4: Turn right
+drive(100, -100);
+delay(1000);
+stopMotors();
+delay(2000);
 }
 
-void setup() {
-  pinMode(IN1, OUTPUT); pinMode(IN2, OUTPUT); pinMode(ENA, OUTPUT);
-  pinMode(IN3, OUTPUT); pinMode(IN4, OUTPUT); pinMode(ENB, OUTPUT);
-  pinMode(STBY, OUTPUT);
-  digitalWrite(STBY, HIGH);
-}
-
-void loop() {
-  driveBothMotors(180, 180); // Both forward
-  delay(2000);
-  driveBothMotors(0, 0);     // Stop
-  delay(1000);
-}</code></pre>
+              
+              
+              </code></pre>
             </div>
           </div>
         </div>
